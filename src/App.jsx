@@ -88,8 +88,11 @@ export default function App() {
   const cityAvg = useMemo(() =>
     average(scoredLocations.filter(l => l.category === 'city').map(l => l.score)),
     [scoredLocations]);
+  const viewpointAvg = useMemo(() =>
+    average(scoredLocations.filter(l => l.category === 'viewpoint').map(l => l.score)),
+    [scoredLocations]);
   const natureAvg = useMemo(() =>
-    average(scoredLocations.filter(l => l.category !== 'city').map(l => l.score)),
+    average(scoredLocations.filter(l => l.category === 'nature').map(l => l.score)),
     [scoredLocations]);
 
   const tabCounts = useMemo(() => ({
@@ -126,7 +129,7 @@ export default function App() {
 
             {/* ── Sidebar (full-width on mobile, sticky column on desktop) ── */}
             <div className="space-y-5 lg:sticky lg:top-8">
-              <DayVerdictBanner cityScore={cityAvg} natureScore={natureAvg} />
+              <DayVerdictBanner cityScore={cityAvg} viewpointScore={viewpointAvg} natureScore={natureAvg} />
               <ConditionsSummary conditions={currentConditions} />
               {currentConditions?.sunrise && currentConditions?.sunset && (
                 <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
