@@ -6,6 +6,27 @@ const SEATTLE = { lat: 47.6062, lng: -122.3321 };
 const RAINIER = { lat: 46.7852, lng: -121.7368 };
 const STALE_THRESHOLD_MS = 45 * 60 * 1000;
 
+const CACHE_KEY = 'spwp_weather_v1';
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+function readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const { seattle, rainier, fetchedAt } = JSON.parse(raw);
+    if (Date.now() - fetchedAt > CACHE_TTL_MS) return null;
+    return { seattle, rainier, fetchedAt };
+  } catch {
+    return null;
+  }
+}
+
+function writeCache(seattle, rainier, fetchedAt) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ seattle, rainier, fetchedAt }));
+  } catch {}
+}
+
 function buildUrl({ lat, lng }) {
   const base = 'https://api.open-meteo.com/v1/forecast';
   const params = new URLSearchParams({
@@ -42,21 +63,38 @@ export function useWeatherData() {
     fetchedAt: null,
   });
 
-  const load = useCallback(async () => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
+  const load = useCallback(async (force = false) => {
+    if (!force) {
+      const cached = readCache();
+      if (cached) {
+        const hourIdx = findCurrentHourIndex(cached.seattle.hourly.time);
+        const dayIdx  = findTodayIndex(cached.seattle.daily.time);
+        setState({
+          seattleData: cached.seattle,
+          rainierData: cached.rainier,
+          currentHourIndex: hourIdx >= 0 ? hourIdx : 12,
+          todayIndex: dayIdx,
+          loading: false,
+          error: null,
+          fetchedAt: cached.fetchedAt,
+        });
+        return;
+      }
+    }
 
     setState(s => ({ ...s, loading: true, error: null }));
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
 
     try {
       const [seattle, rainier] = await Promise.all([
         fetchLocation(SEATTLE, controller.signal),
         fetchLocation(RAINIER, controller.signal),
       ]);
-
+      const fetchedAt = Date.now();
+      writeCache(seattle, rainier, fetchedAt);
       const hourIdx = findCurrentHourIndex(seattle.hourly.time);
-      const dayIdx = findTodayIndex(seattle.daily.time);
-
+      const dayIdx  = findTodayIndex(seattle.daily.time);
       setState({
         seattleData: seattle,
         rainierData: rainier,
@@ -64,14 +102,15 @@ export function useWeatherData() {
         todayIndex: dayIdx,
         loading: false,
         error: null,
-        fetchedAt: Date.now(),
+        fetchedAt,
       });
     } catch (err) {
-      if (err.name === 'AbortError') {
-        setState(s => ({ ...s, loading: false, error: 'Request timed out. Check your connection.' }));
-      } else {
-        setState(s => ({ ...s, loading: false, error: 'Could not load weather data. Check your connection.' }));
-      }
+      setState(s => ({
+        ...s, loading: false,
+        error: err.name === 'AbortError'
+          ? 'Request timed out. Check your connection.'
+          : 'Could not load weather data. Check your connection.',
+      }));
     } finally {
       clearTimeout(timeout);
     }
@@ -88,7 +127,7 @@ export function useWeatherData() {
     ? deriveConditions(state.seattleData, state.currentHourIndex, state.todayIndex)
     : null;
 
-  return { ...state, currentConditions, isStale, reload: load };
+  return { ...state, currentConditions, isStale, reload: () => load(true) };
 }
 
 export function deriveConditions(data, hourIdx, dayIdx) {

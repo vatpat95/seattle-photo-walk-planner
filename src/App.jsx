@@ -48,7 +48,7 @@ export default function App() {
     loading, error, fetchedAt, isStale, reload,
   } = useWeatherData();
 
-  const webcamTimestamp = useWebcamRefresh(5 * 60 * 1000);
+  const { timestamp: webcamTimestamp, refresh: refreshWebcams } = useWebcamRefresh(5 * 60 * 1000);
   const [activeView, setActiveView] = useState('locations');
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
@@ -165,7 +165,7 @@ export default function App() {
               )}
 
               {activeView === 'webcams' && (
-                <WebcamSection timestamp={webcamTimestamp} />
+                <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
               )}
             </div>
           </div>

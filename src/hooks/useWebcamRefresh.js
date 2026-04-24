@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export function useWebcamRefresh(intervalMs = 5 * 60 * 1000) {
   const [timestamp, setTimestamp] = useState(() => Date.now());
@@ -8,5 +8,7 @@ export function useWebcamRefresh(intervalMs = 5 * 60 * 1000) {
     return () => clearInterval(id);
   }, [intervalMs]);
 
-  return timestamp;
+  const refresh = useCallback(() => setTimestamp(Date.now()), []);
+
+  return { timestamp, refresh };
 }

@@ -1,7 +1,7 @@
 import WebcamFeed from './WebcamFeed';
 import { WEBCAMS } from '../../constants/locations';
 
-export default function WebcamSection({ timestamp }) {
+export default function WebcamSection({ timestamp, onRefresh }) {
   const nextRefresh = new Date(timestamp + 5 * 60 * 1000).toLocaleTimeString('en-US', {
     hour: 'numeric', minute: '2-digit', hour12: true,
   });
@@ -11,11 +11,17 @@ export default function WebcamSection({ timestamp }) {
       <div className="flex items-center justify-between flex-wrap gap-2">
         <div>
           <h2 className="text-white font-semibold">📡 Live Webcams</h2>
-          <p className="text-slate-600 text-xs mt-0.5">See conditions right now before heading out</p>
+          <p className="text-slate-600 text-xs mt-0.5">Tap any camera to open its source page</p>
         </div>
-        <span className="text-slate-600 text-xs bg-white/[0.03] border border-white/[0.06] px-3 py-1 rounded-full">
-          Refreshes at {nextRefresh}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-slate-600 text-xs bg-white/[0.03] border border-white/[0.06] px-3 py-1 rounded-full">
+            Auto-refresh at {nextRefresh}
+          </span>
+          <button onClick={onRefresh}
+            className="text-sky-400 hover:text-sky-300 text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/20 px-3 py-1 rounded-full transition-colors">
+            ↻ Refresh now
+          </button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
