@@ -1,13 +1,13 @@
 import { useState } from 'react';
 
-const FORMSPREE_ID = import.meta.env.VITE_FORMSPREE_ID;
+const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
 
 export default function FeedbackButton() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen]     = useState(false);
   const [status, setStatus] = useState('idle'); // idle | submitting | success | error
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm]     = useState({ name: '', email: '', message: '' });
 
-  if (!FORMSPREE_ID) return null;
+  if (!WEB3FORMS_KEY) return null;
 
   const handleChange = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
 
@@ -15,12 +15,17 @@ export default function FeedbackButton() {
     e.preventDefault();
     setStatus('submitting');
     try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      const res = await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: { Accept: 'application/json' },
-        body: new FormData(e.target),
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: 'Seattle Photo Walk Planner — Feedback',
+          ...form,
+        }),
       });
-      if (res.ok) {
+      const data = await res.json();
+      if (data.success) {
         setStatus('success');
         setForm({ name: '', email: '', message: '' });
         setTimeout(() => { setOpen(false); setStatus('idle'); }, 3000);
@@ -34,7 +39,7 @@ export default function FeedbackButton() {
 
   return (
     <>
-      {/* Floating trigger button */}
+      {/* Floating trigger */}
       <button
         onClick={() => { setOpen(true); setStatus('idle'); }}
         className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-full bg-sky-500/20 border border-sky-500/30 text-sky-300 text-sm font-medium hover:bg-sky-500/30 transition-all shadow-lg backdrop-blur-sm"

@@ -86,6 +86,38 @@ export function getDayVerdict(cityScore, natureScore) {
   };
 }
 
+export function scoreAstroLocation(h) {
+  const { cloudCover = 50, precipMM = 0, precipProb = 0, visibilityKm = 15, windMph = 10 } = h;
+  let score = 20;
+
+  // Cloud cover dominates astro — even 30% clouds can obscure the Milky Way
+  if (cloudCover <= 5)  score += 50;
+  else if (cloudCover <= 15) score += 35;
+  else if (cloudCover <= 30) score += 15;
+  else if (cloudCover <= 50) score -= 10;
+  else if (cloudCover <= 75) score -= 30;
+  else score -= 50;
+
+  // Visibility is critical at night — haze/smoke kills contrast
+  if (visibilityKm >= 20) score += 20;
+  else if (visibilityKm >= 15) score += 12;
+  else if (visibilityKm >= 10) score += 0;
+  else if (visibilityKm >= 5)  score -= 15;
+  else score -= 35;
+
+  // Any precipitation ruins a long-exposure session
+  if (precipMM === 0 && precipProb < 10)  score += 15;
+  else if (precipMM > 0)   score -= 40;
+  else if (precipProb > 30) score -= 20;
+  else if (precipProb > 10) score -= 8;
+
+  // Wind matters less for astro but affects long exposures
+  if (windMph < 5)   score += 5;
+  else if (windMph > 20) score -= 10;
+
+  return Math.max(0, Math.min(100, Math.round(score)));
+}
+
 export function average(nums) {
   if (!nums.length) return 0;
   return Math.round(nums.reduce((a, b) => a + b, 0) / nums.length);
