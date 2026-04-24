@@ -108,7 +108,7 @@ export default function App() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-900/10 rounded-full blur-3xl" />
       </div>
 
-      <div className="relative max-w-4xl mx-auto px-4 py-8">
+      <div className="relative max-w-7xl mx-auto px-4 py-8">
         <Header fetchedAt={fetchedAt} />
 
         {isStale && !loading && (
@@ -122,11 +122,11 @@ export default function App() {
         {error && !loading && <ErrorBanner message={error} onRetry={reload} />}
 
         {!loading && !error && seattleData && (
-          <div className="space-y-6">
-            {/* Always-visible top section */}
-            <DayVerdictBanner cityScore={cityAvg} natureScore={natureAvg} />
+          <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-8 lg:items-start">
 
-            <div className="space-y-4">
+            {/* ── Sidebar (full-width on mobile, sticky column on desktop) ── */}
+            <div className="space-y-5 lg:sticky lg:top-8">
+              <DayVerdictBanner cityScore={cityAvg} natureScore={natureAvg} />
               <ConditionsSummary conditions={currentConditions} />
               {currentConditions?.sunrise && currentConditions?.sunset && (
                 <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
@@ -138,32 +138,33 @@ export default function App() {
               />
             </div>
 
-            {/* View toggle */}
-            <ViewToggle activeView={activeView} onChange={setActiveView} />
+            {/* ── Main content area ── */}
+            <div className="space-y-5 mt-6 lg:mt-0">
+              <ViewToggle activeView={activeView} onChange={setActiveView} />
 
-            {/* Switched content */}
-            {activeView === 'locations' && (
-              <div className="space-y-4">
-                <LocationTabs
-                  activeTab={activeTab}
-                  onTabChange={handleTabChange}
-                  counts={tabCounts}
-                  scoredLocations={scoredLocations}
-                  activeSubcategory={activeSubcategory}
-                  onSubcategoryChange={setActiveSubcategory}
-                />
-                <LocationGrid
-                  scoredLocations={scoredLocations}
-                  activeTab={activeTab}
-                  activeSubcategory={activeSubcategory}
-                  isGoldenHour={isGoldenHour}
-                />
-              </div>
-            )}
+              {activeView === 'locations' && (
+                <div className="space-y-4">
+                  <LocationTabs
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    counts={tabCounts}
+                    scoredLocations={scoredLocations}
+                    activeSubcategory={activeSubcategory}
+                    onSubcategoryChange={setActiveSubcategory}
+                  />
+                  <LocationGrid
+                    scoredLocations={scoredLocations}
+                    activeTab={activeTab}
+                    activeSubcategory={activeSubcategory}
+                    isGoldenHour={isGoldenHour}
+                  />
+                </div>
+              )}
 
-            {activeView === 'webcams' && (
-              <WebcamSection timestamp={webcamTimestamp} />
-            )}
+              {activeView === 'webcams' && (
+                <WebcamSection timestamp={webcamTimestamp} />
+              )}
+            </div>
           </div>
         )}
 

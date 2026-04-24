@@ -21,7 +21,7 @@ export default function LocationGrid({ scoredLocations, activeTab, activeSubcate
   // When a specific subcategory is active, render flat grid (no group headers)
   if (activeSubcategory !== 'All') {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
         {filtered.map(loc => (
           <LocationCard key={loc.id} location={loc} score={loc.score}
             conditions={loc.conditions} isGoldenHour={isGoldenHour} />
@@ -47,7 +47,7 @@ export default function LocationGrid({ scoredLocations, activeTab, activeSubcate
             {subcategory}
             <span className="h-px flex-1 bg-white/[0.04]" />
           </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {locs.map(loc => (
               <LocationCard key={loc.id} location={loc} score={loc.score}
                 conditions={loc.conditions} isGoldenHour={isGoldenHour} />
