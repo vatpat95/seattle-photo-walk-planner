@@ -17,12 +17,24 @@ import ErrorBanner from './components/shared/ErrorBanner';
 
 const RAINIER_IDS = new Set(['rainier-paradise', 'rainier-reflection', 'rainier-tipsoo']);
 
-function SectionDivider({ label }) {
+function ViewToggle({ activeView, onChange }) {
+  const views = [
+    { id: 'locations', icon: '📍', label: 'Locations' },
+    { id: 'webcams',   icon: '📡', label: 'Live Webcams' },
+  ];
   return (
-    <div className="flex items-center gap-3">
-      <div className="h-px flex-1 bg-white/[0.05]" />
-      <span className="text-slate-600 text-xs font-semibold uppercase tracking-widest px-1">{label}</span>
-      <div className="h-px flex-1 bg-white/[0.05]" />
+    <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06]">
+      {views.map(v => (
+        <button key={v.id} onClick={() => onChange(v.id)}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
+            activeView === v.id
+              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
+          }`}>
+          <span>{v.icon}</span>
+          <span>{v.label}</span>
+        </button>
+      ))}
     </div>
   );
 }
@@ -34,7 +46,15 @@ export default function App() {
   } = useWeatherData();
 
   const webcamTimestamp = useWebcamRefresh(5 * 60 * 1000);
+  const [activeView, setActiveView] = useState('locations');
   const [activeTab, setActiveTab] = useState('city');
+  const [activeSubcategory, setActiveSubcategory] = useState('All');
+
+  // Reset subcategory chip when switching main tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setActiveSubcategory('All');
+  };
 
   const currentConditions = useMemo(() => {
     if (!seattleData) return null;
@@ -70,16 +90,16 @@ export default function App() {
     [scoredLocations]);
 
   const tabCounts = useMemo(() => ({
-    city: scoredLocations.filter(l => l.category === 'city').length,
+    city:      scoredLocations.filter(l => l.category === 'city').length,
     viewpoint: scoredLocations.filter(l => l.category === 'viewpoint').length,
-    nature: scoredLocations.filter(l => l.category === 'nature').length,
+    nature:    scoredLocations.filter(l => l.category === 'nature').length,
   }), [scoredLocations]);
 
   const isGoldenHour = lightQuality === 'golden';
 
   return (
     <div className="min-h-screen bg-[#04040a]">
-      {/* Ambient background glow */}
+      {/* Ambient glow */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-900/10 rounded-full blur-3xl" />
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-900/10 rounded-full blur-3xl" />
@@ -91,43 +111,51 @@ export default function App() {
         {isStale && !loading && (
           <div className="mb-6 rounded-xl bg-amber-950/40 border border-amber-500/20 px-4 py-2.5 flex items-center justify-between">
             <span className="text-amber-400/80 text-xs">Weather data may be outdated</span>
-            <button onClick={reload} className="text-amber-400 text-xs underline hover:text-amber-300 transition-colors">
-              Refresh
-            </button>
+            <button onClick={reload} className="text-amber-400 text-xs underline hover:text-amber-300 transition-colors">Refresh</button>
           </div>
         )}
 
         {loading && <LoadingSpinner />}
-
-        {error && !loading && (
-          <div className="mt-4">
-            <ErrorBanner message={error} onRetry={reload} />
-          </div>
-        )}
+        {error && !loading && <ErrorBanner message={error} onRetry={reload} />}
 
         {!loading && !error && seattleData && (
-          <div className="space-y-8">
+          <div className="space-y-6">
+            {/* Always-visible top section */}
             <DayVerdictBanner cityScore={cityAvg} natureScore={natureAvg} />
 
-            <SectionDivider label="Right Now" />
-
-            <div className="space-y-5">
+            <div className="space-y-4">
               <ConditionsSummary conditions={currentConditions} />
               {currentConditions?.sunrise && currentConditions?.sunset && (
                 <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
               )}
             </div>
 
-            <SectionDivider label="Locations" />
+            {/* View toggle */}
+            <ViewToggle activeView={activeView} onChange={setActiveView} />
 
-            <div className="space-y-4">
-              <LocationTabs activeTab={activeTab} onTabChange={setActiveTab} counts={tabCounts} />
-              <LocationGrid scoredLocations={scoredLocations} activeTab={activeTab} isGoldenHour={isGoldenHour} />
-            </div>
+            {/* Switched content */}
+            {activeView === 'locations' && (
+              <div className="space-y-4">
+                <LocationTabs
+                  activeTab={activeTab}
+                  onTabChange={handleTabChange}
+                  counts={tabCounts}
+                  scoredLocations={scoredLocations}
+                  activeSubcategory={activeSubcategory}
+                  onSubcategoryChange={setActiveSubcategory}
+                />
+                <LocationGrid
+                  scoredLocations={scoredLocations}
+                  activeTab={activeTab}
+                  activeSubcategory={activeSubcategory}
+                  isGoldenHour={isGoldenHour}
+                />
+              </div>
+            )}
 
-            <SectionDivider label="Live Conditions" />
-
-            <WebcamSection timestamp={webcamTimestamp} />
+            {activeView === 'webcams' && (
+              <WebcamSection timestamp={webcamTimestamp} />
+            )}
           </div>
         )}
 
