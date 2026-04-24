@@ -1,7 +1,15 @@
+// Parse time directly from the ISO string — Open-Meteo returns Seattle local times
+// without timezone offset, so we extract digits rather than using Date() which
+// would interpret the string in the browser's local timezone.
 export function formatTime(isoString) {
   if (!isoString) return '--';
-  const d = new Date(isoString);
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const timePart = isoString.includes('T') ? isoString.split('T')[1] : isoString;
+  const [hStr, mStr] = timePart.split(':');
+  const h = parseInt(hStr, 10);
+  const m = parseInt(mStr, 10);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
 }
 
 export function formatDate(d = new Date()) {

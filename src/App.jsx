@@ -3,6 +3,7 @@ import { useWeatherData, extractHourlySlice, deriveConditions } from './hooks/us
 import { useWebcamRefresh } from './hooks/useWebcamRefresh';
 import { LOCATIONS } from './constants/locations';
 import { scoreCityLocation, scoreNatureLocation, getLightQuality, average } from './utils/scoring';
+import { getNowSeattleMs } from './utils/timezone';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
@@ -66,7 +67,7 @@ export default function App() {
   const lightQuality = useMemo(() => {
     if (!currentConditions?.sunrise || !currentConditions?.sunset) return 'normal';
     return getLightQuality(
-      Date.now(),
+      getNowSeattleMs(),
       new Date(currentConditions.sunrise).getTime(),
       new Date(currentConditions.sunset).getTime(),
     );

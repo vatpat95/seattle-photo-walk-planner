@@ -12,23 +12,22 @@ export function describeWmoCode(code) {
   return { label: 'Unknown', icon: '🌡️' };
 }
 
+import { getNowSeattleIso, getTodaySeattleDate } from './timezone';
+
 export function findCurrentHourIndex(timeArray) {
-  const now = Date.now();
-  let idx = 0;
+  if (!timeArray?.length) return 0;
+  // Compare ISO strings directly — both API times and nowSeattle are in the same
+  // Seattle-local format ("YYYY-MM-DDTHH:MM"), which sorts lexicographically.
+  const now = getNowSeattleIso();
   for (let i = 0; i < timeArray.length - 1; i++) {
-    const t = new Date(timeArray[i]).getTime();
-    const next = new Date(timeArray[i + 1]).getTime();
-    if (t <= now && now < next) {
-      idx = i;
-      break;
-    }
-    if (i === timeArray.length - 2) idx = i;
+    if (timeArray[i] <= now && now < timeArray[i + 1]) return i;
   }
-  return idx;
+  return timeArray.length - 2;
 }
 
 export function findTodayIndex(timeArray) {
-  const today = new Date().toISOString().slice(0, 10);
+  // Use Seattle's current date — avoids UTC midnight crossing for non-Seattle users
+  const today = getTodaySeattleDate();
   const idx = timeArray.findIndex(t => t === today);
   return idx >= 0 ? idx : 0;
 }
