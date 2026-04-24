@@ -1,14 +1,32 @@
+import { useRef, useState, useEffect } from 'react';
+
 const MAIN_TABS = [
   { id: 'city',      label: 'City & Urban',   icon: '🏙️' },
   { id: 'viewpoint', label: 'Viewpoints',     icon: '🔭' },
   { id: 'nature',    label: 'Nature & Hiking', icon: '🌿' },
 ];
 
+function useScrollArrow(ref) {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const check = () => setShow(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
+    check();
+    el.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    return () => { el.removeEventListener('scroll', check); window.removeEventListener('resize', check); };
+  }, [ref]);
+  return show;
+}
+
 export default function LocationTabs({
   activeTab, onTabChange, counts = {},
   scoredLocations = [], activeSubcategory, onSubcategoryChange,
 }) {
-  // Derive subcategories for the current tab
+  const tabsRef = useRef(null);
+  const showTabArrow = useScrollArrow(tabsRef);
+
   const subcategories = [
     'All',
     ...Array.from(
@@ -25,26 +43,32 @@ export default function LocationTabs({
     <div className="space-y-3">
       {/* Main category tabs */}
       <div className="relative">
-        <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06] overflow-x-auto scrollbar-hide">
+        <div ref={tabsRef} className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06] overflow-x-auto scrollbar-hide">
           {MAIN_TABS.map(tab => (
-          <button key={tab.id} onClick={() => onTabChange(tab.id)}
-            className={`shrink-0 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-              activeTab === tab.id
-                ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-inner'
-                : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
-            }`}>
-            <span>{tab.icon}</span>
-            <span>{tab.label}</span>
-            {counts[tab.id] != null && (
-              <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                activeTab === tab.id ? 'bg-sky-500/30 text-sky-300' : 'bg-white/[0.07] text-slate-500'
-              }`}>{counts[tab.id]}</span>
-            )}
-          </button>
+            <button key={tab.id} onClick={() => onTabChange(tab.id)}
+              className={`shrink-0 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+                activeTab === tab.id
+                  ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-inner'
+                  : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
+              }`}>
+              <span>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {counts[tab.id] != null && (
+                <span className={`text-xs px-1.5 py-0.5 rounded-full ${
+                  activeTab === tab.id ? 'bg-sky-500/30 text-sky-300' : 'bg-white/[0.07] text-slate-500'
+                }`}>{counts[tab.id]}</span>
+              )}
+            </button>
           ))}
         </div>
-        {/* Right-edge fade — scroll affordance */}
-        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#04040a] to-transparent pointer-events-none rounded-r-2xl" />
+
+        {/* Scroll arrow indicator */}
+        {showTabArrow && (
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-1 bg-slate-800/90 border border-white/10 rounded-full px-2 py-1 shadow-lg">
+            <span className="text-slate-300 text-xs font-medium">more</span>
+            <span className="text-slate-300 text-sm">›</span>
+          </div>
+        )}
       </div>
 
       {/* Subcategory filter chips */}
