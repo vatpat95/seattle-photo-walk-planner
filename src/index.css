@@ -1,0 +1,44 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    background: #04040a;
+    color: #f1f5f9;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .glow-sky {
+    box-shadow: 0 0 20px 0 rgba(56, 189, 248, 0.15);
+  }
+  .glow-amber {
+    box-shadow: 0 0 20px 0 rgba(245, 158, 11, 0.2);
+  }
+  .glass {
+    background: rgba(15, 16, 25, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #f8fafc 0%, #7dd3fc 50%, #818cf8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  }
+}
