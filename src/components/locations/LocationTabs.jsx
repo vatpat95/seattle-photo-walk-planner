@@ -24,10 +24,11 @@ export default function LocationTabs({
   return (
     <div className="space-y-3">
       {/* Main category tabs */}
-      <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06] overflow-x-auto scrollbar-hide">
-        {MAIN_TABS.map(tab => (
+      <div className="relative">
+        <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06] overflow-x-auto scrollbar-hide">
+          {MAIN_TABS.map(tab => (
           <button key={tab.id} onClick={() => onTabChange(tab.id)}
-            className={`flex-1 shrink-0 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+            className={`shrink-0 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all duration-200 whitespace-nowrap ${
               activeTab === tab.id
                 ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30 shadow-inner'
                 : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
@@ -40,7 +41,10 @@ export default function LocationTabs({
               }`}>{counts[tab.id]}</span>
             )}
           </button>
-        ))}
+          ))}
+        </div>
+        {/* Right-edge fade — scroll affordance */}
+        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#04040a] to-transparent pointer-events-none rounded-r-2xl" />
       </div>
 
       {/* Subcategory filter chips */}

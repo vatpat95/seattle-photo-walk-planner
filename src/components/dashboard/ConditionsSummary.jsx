@@ -23,12 +23,16 @@ export default function ConditionsSummary({ conditions }) {
         <span className="text-slate-600 text-xs">·</span>
         <span className="text-slate-400 text-xs">{label}</span>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-        <Stat icon="🌡️" label="Feels like" value={formatTemp(temp)} />
-        <Stat icon="☁️" label="Cloud cover" value={`${cloudCover ?? '--'}%`} />
-        <Stat icon="💨" label="Wind" value={windMph != null ? `${Math.round(windMph)} mph` : '--'} />
-        <Stat icon="🌧️" label="Rain chance" value={`${precipProb ?? '--'}%`} />
-        <Stat icon="👁️" label="Visibility" value={formatVisibility((visibilityKm ?? 15) * 1000)} />
+      <div className="relative">
+        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+          <Stat icon="🌡️" label="Feels like" value={formatTemp(temp)} />
+          <Stat icon="☁️" label="Cloud cover" value={`${cloudCover ?? '--'}%`} />
+          <Stat icon="💨" label="Wind" value={windMph != null ? `${Math.round(windMph)} mph` : '--'} />
+          <Stat icon="🌧️" label="Rain chance" value={`${precipProb ?? '--'}%`} />
+          <Stat icon="👁️" label="Visibility" value={formatVisibility((visibilityKm ?? 15) * 1000)} />
+        </div>
+        {/* Right-edge fade — scroll affordance */}
+        <div className="absolute right-0 top-0 bottom-0 w-10 bg-gradient-to-l from-[#04040a] to-transparent pointer-events-none" />
       </div>
     </div>
   );

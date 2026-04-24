@@ -17,6 +17,16 @@
 }
 
 @layer utilities {
+  .scrollbar-hide,
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar,
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
   .glow-sky {
     box-shadow: 0 0 20px 0 rgba(56, 189, 248, 0.15);
   }
