@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ScoreRing from '../shared/ScoreRing';
 import { scoreColor } from '../../utils/scoring';
+import { useWikipediaImage } from '../../hooks/useWikipediaImage';
 
 const ringColors = {
   emerald: 'ring-emerald-500/20',
@@ -17,6 +18,7 @@ const categoryGradients = {
 
 export default function LocationCard({ location, score, conditions, isGoldenHour }) {
   const [imgError, setImgError] = useState(false);
+  const imageUrl = useWikipediaImage(location.wikiTitle);
   const color = scoreColor(score);
   const ring = ringColors[color];
   const showGoldenBanner = isGoldenHour && location.category !== 'city';
@@ -32,8 +34,8 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
             ✨ GOLDEN HOUR NOW
           </div>
         )}
-        {!imgError && location.image ? (
-          <img src={location.image} alt={location.name}
+        {!imgError && imageUrl ? (
+          <img src={imageUrl} alt={location.name}
             className="w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
             onError={() => setImgError(true)} />
         ) : (
@@ -76,6 +78,14 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
             </>
           )}
         </div>
+
+        <a
+          href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}
+          target="_blank" rel="noopener noreferrer"
+          className="mt-auto pt-2 flex items-center gap-1 text-xs text-sky-400/70 hover:text-sky-300 transition-colors w-fit"
+        >
+          <span>📍</span> Get Directions
+        </a>
       </div>
     </div>
   );

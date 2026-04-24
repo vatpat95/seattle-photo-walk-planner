@@ -1,6 +1,3 @@
-const UNS = (id) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=800&q=80`;
-const WIKI = (path) => `https://upload.wikimedia.org/wikipedia/commons/thumb/${path}`;
-
 export const LOCATIONS = [
 
   // ── CITY: Urban & Street ─────────────────────────────────────────────────
@@ -10,7 +7,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Urban & Street',
     lat: 47.6097, lng: -122.3421, distanceMiles: 0,
     notes: 'Fish throwers, flower stalls, the original Starbucks — arrive before 9am to beat crowds',
-    image: WIKI('2/27/Pike_Place_Market_Sign%2C_Seattle%2C_WA.jpg/800px-Pike_Place_Market_Sign%2C_Seattle%2C_WA.jpg'),
+    wikiTitle: 'Pike Place Market',
   },
   {
     id: 'post-alley',
@@ -18,7 +15,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Urban & Street',
     lat: 47.6088, lng: -122.3398, distanceMiles: 0,
     notes: 'Colorful brick alley layered with gum art since the 1990s — quirky and photogenic',
-    image: UNS('1449824913935-59a10b8d2000'),
+    wikiTitle: 'Market Theater Gum Wall',
   },
   {
     id: 'capitol-hill',
@@ -26,7 +23,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Urban & Street',
     lat: 47.6205, lng: -122.3212, distanceMiles: 1,
     notes: 'Street murals, indie cafes, and nightlife neon — great for moody street photography',
-    image: UNS('1519501025264-65ba15a82390'),
+    wikiTitle: 'Capitol Hill, Seattle',
   },
   {
     id: 'fremont',
@@ -34,7 +31,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Urban & Street',
     lat: 47.6517, lng: -122.3501, distanceMiles: 3,
     notes: "Bohemian district with the famous Fremont Troll, vintage shops, and canal views",
-    image: WIKI('9/9a/Fremont_troll_2009.jpg/800px-Fremont_troll_2009.jpg'),
+    wikiTitle: 'Fremont Troll',
   },
   {
     id: 'georgetown',
@@ -42,7 +39,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Urban & Street',
     lat: 47.5551, lng: -122.3244, distanceMiles: 5,
     notes: 'Industrial warehouse district turned open-air mural gallery — gritty and creative',
-    image: UNS('1438401171849-74ac270044ee'),
+    wikiTitle: 'Georgetown, Seattle',
   },
 
   // ── CITY: Architecture ────────────────────────────────────────────────────
@@ -52,7 +49,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Architecture',
     lat: 47.6205, lng: -122.3493, distanceMiles: 0,
     notes: '605-foot icon — shoot from below at dusk or frame it from Kerry Park across the skyline',
-    image: WIKI('7/71/Space_Needle002.jpg/800px-Space_Needle002.jpg'),
+    wikiTitle: 'Space Needle',
   },
   {
     id: 'central-library',
@@ -60,7 +57,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Architecture',
     lat: 47.6068, lng: -122.3309, distanceMiles: 0,
     notes: 'Rem Koolhaas glass diamond — the interior green-tinted spiral filters light beautifully',
-    image: WIKI('c/c8/Seattle_Public_Library%2C_Central_Branch.jpg/800px-Seattle_Public_Library%2C_Central_Branch.jpg'),
+    wikiTitle: 'Seattle Central Library',
   },
   {
     id: 'king-street-station',
@@ -68,7 +65,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Architecture',
     lat: 47.5981, lng: -122.3293, distanceMiles: 1,
     notes: '1906 Romanesque Revival station with ornate coffered ceilings — stunning interior shots',
-    image: WIKI('3/30/King_Street_Station_clock_tower.jpg/800px-King_Street_Station_clock_tower.jpg'),
+    wikiTitle: 'King Street station (Seattle)',
   },
 
   // ── CITY: Waterfront ──────────────────────────────────────────────────────
@@ -78,7 +75,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Waterfront',
     lat: 47.6128, lng: -122.3582, distanceMiles: 0,
     notes: "9-acre free park where modern art meets Elliott Bay — Serra's Eagle frames water and mountains",
-    image: UNS('1520038410233-7141be7e6f97'),
+    wikiTitle: 'Olympic Sculpture Park',
   },
   {
     id: 'alki-beach',
@@ -86,7 +83,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Waterfront',
     lat: 47.5757, lng: -122.4151, distanceMiles: 5,
     notes: "West Seattle's sandy beach — the full downtown skyline reflected in Puget Sound at sunset",
-    image: UNS('1697729926633-1d9048a2d60a'),
+    wikiTitle: 'Alki Beach Park',
   },
   {
     id: 'ballard-locks',
@@ -94,7 +91,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'Waterfront',
     lat: 47.6680, lng: -122.3891, distanceMiles: 6,
     notes: 'Watch boats lock through and salmon jump the fish ladder — unique industrial waterway scene',
-    image: WIKI('5/52/Chittenden_locks_2.jpg/800px-Chittenden_locks_2.jpg'),
+    wikiTitle: 'Hiram M. Chittenden Locks',
   },
 
   // ── CITY: City Parks ──────────────────────────────────────────────────────
@@ -104,7 +101,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'City Parks',
     lat: 47.6452, lng: -122.3318, distanceMiles: 2,
     notes: 'Rusted industrial towers on a grassy hilltop — panoramic Lake Union and skyline views',
-    image: WIKI('0/0d/Gas_Works_Park_Structures.jpg/800px-Gas_Works_Park_Structures.jpg'),
+    wikiTitle: 'Gas Works Park',
   },
   {
     id: 'volunteer-park',
@@ -112,7 +109,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'City Parks',
     lat: 47.6260, lng: -122.3036, distanceMiles: 2,
     notes: 'Water tower deck, lily pond, and dahlia gardens — each season transforms the palette',
-    image: WIKI('8/84/Seattle_-_Volunteer_Park_water_tower_01.jpg/800px-Seattle_-_Volunteer_Park_water_tower_01.jpg'),
+    wikiTitle: 'Volunteer Park (Seattle)',
   },
   {
     id: 'discovery-park',
@@ -120,7 +117,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'City Parks',
     lat: 47.6620, lng: -122.4357, distanceMiles: 5,
     notes: "West Point Lighthouse on sea cliffs — Seattle's largest park with Olympic and Cascade views",
-    image: WIKI('3/33/West_Point_Lighthouse_%28Discovery_Park%2C_Seattle%29.jpg/800px-West_Point_Lighthouse_%28Discovery_Park%2C_Seattle%29.jpg'),
+    wikiTitle: 'Discovery Park (Seattle)',
   },
   {
     id: 'arboretum',
@@ -128,7 +125,7 @@ export const LOCATIONS = [
     category: 'city', subcategory: 'City Parks',
     lat: 47.6367, lng: -122.2985, distanceMiles: 3,
     notes: '230 acres of maples, cherries, and camellias — Japanese Garden is a highlight year-round',
-    image: WIKI('c/cf/Seattle_Japanese_Garden_002.jpg/800px-Seattle_Japanese_Garden_002.jpg'),
+    wikiTitle: 'Washington Park Arboretum',
   },
 
   // ── VIEWPOINTS: City Skyline ──────────────────────────────────────────────
@@ -138,7 +135,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'City Skyline',
     lat: 47.6245, lng: -122.3559, distanceMiles: 1,
     notes: 'THE Seattle shot — Space Needle, downtown, and Mt Rainier all in one frame at golden hour',
-    image: WIKI('3/31/Kerry_Park_at_Night.jpg/800px-Kerry_Park_at_Night.jpg'),
+    wikiTitle: 'Kerry Park (Seattle)',
   },
   {
     id: 'queen-anne',
@@ -146,7 +143,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'City Skyline',
     lat: 47.6323, lng: -122.3576, distanceMiles: 2,
     notes: 'Multiple overlooks along the ridge — less crowded than Kerry Park, same great skyline angle',
-    image: UNS('1502175353174-a7a70e73b362'),
+    wikiTitle: 'Queen Anne, Seattle',
   },
   {
     id: 'beacon-hill',
@@ -154,15 +151,15 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'City Skyline',
     lat: 47.5697, lng: -122.3069, distanceMiles: 3,
     notes: 'Underrated southward skyline view — Rainier frames the cityscape on clear days',
-    image: UNS('1542223616-9de9adb5e3e8'),
+    wikiTitle: 'Beacon Hill, Seattle',
   },
   {
     id: 'parsons-garden',
     name: 'Parsons Garden & Marshall Park',
     category: 'viewpoint', subcategory: 'Hidden Gems',
     lat: 47.6323, lng: -122.3612, distanceMiles: 2,
-    notes: 'Secret rose garden with stone staircases — Marshall Park just across has Olympic Mountain views over the Sound',
-    image: UNS('1476067897447-90eb35ff6a70'),
+    notes: 'Secret rose garden with stone staircases — Marshall Park just across has Olympic Mountain views',
+    wikiTitle: 'Queen Anne, Seattle',
   },
 
   // ── VIEWPOINTS: Aerial Views ──────────────────────────────────────────────
@@ -172,7 +169,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'Aerial Views',
     lat: 47.6060, lng: -122.3310, distanceMiles: 0,
     notes: '360° views from 900ft — the only spot in Seattle to look DOWN on the Space Needle',
-    image: UNS('1437809781432-a957377661ee'),
+    wikiTitle: 'Columbia Center',
   },
   {
     id: 'smith-tower',
@@ -180,7 +177,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'Aerial Views',
     lat: 47.6024, lng: -122.3291, distanceMiles: 0,
     notes: 'Historic 1914 skyscraper, 35th-floor open-air deck — vintage Seattle panorama, bar on-site',
-    image: WIKI('f/f7/Columbia_Center_from_SN.jpg/800px-Columbia_Center_from_SN.jpg'),
+    wikiTitle: 'Smith Tower',
   },
 
   // ── VIEWPOINTS: Coastal Viewpoints ───────────────────────────────────────
@@ -190,7 +187,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'Coastal Viewpoints',
     lat: 47.7710, lng: -122.3847, distanceMiles: 15,
     notes: 'Bluff trail overlooking Puget Sound and the Olympics — dramatic golden hour light off the water',
-    image: UNS('1520038410233-7141be7e6f97'),
+    wikiTitle: 'Richmond Beach, Washington',
   },
   {
     id: 'bainbridge-ferry',
@@ -198,7 +195,7 @@ export const LOCATIONS = [
     category: 'viewpoint', subcategory: 'Coastal Viewpoints',
     lat: 47.6256, lng: -122.5237, distanceMiles: 8,
     notes: '35-min ferry crossing — shoot the skyline receding or approaching, incredible at blue hour',
-    image: UNS('1549092273-8b23dde8ac2b'),
+    wikiTitle: 'Bainbridge Island, Washington',
   },
 
   // ── NATURE: Waterfalls ────────────────────────────────────────────────────
@@ -208,7 +205,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Waterfalls',
     lat: 47.5340, lng: -121.8350, distanceMiles: 28,
     notes: '268ft roaring falls with mist and forest — stunning at full flow in spring',
-    image: WIKI('0/07/Snoqualmie_Falls_in_2011.jpg/800px-Snoqualmie_Falls_in_2011.jpg'),
+    wikiTitle: 'Snoqualmie Falls',
   },
   {
     id: 'twin-falls',
@@ -216,7 +213,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Waterfalls',
     lat: 47.4400, lng: -121.8500, distanceMiles: 32,
     notes: 'Two-tiered waterfall through old-growth moss — easy 2.6mi trail, great for ND long-exposure',
-    image: UNS('1552083375-1447ce886485'),
+    wikiTitle: 'Twin Falls State Park (Washington)',
   },
   {
     id: 'franklin-falls',
@@ -224,7 +221,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Waterfalls',
     lat: 47.4719, lng: -121.5436, distanceMiles: 50,
     notes: 'Dramatic 70ft sheet waterfall — icy and ethereal in winter, flat easy 2mi trail',
-    image: WIKI('e/e2/Franklin_falls_snow_2018.jpg/800px-Franklin_falls_snow_2018.jpg'),
+    wikiTitle: 'Franklin Falls (Washington)',
   },
 
   // ── NATURE: Alpine & Mountains ────────────────────────────────────────────
@@ -234,7 +231,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Alpine & Mountains',
     lat: 46.7852, lng: -121.7368, distanceMiles: 90,
     notes: 'Wildflower meadows at 5,400ft with glacier views — alpenglow at golden hour is world-class',
-    image: WIKI('1/10/Mount_Rainier_from_Crystal_Mountain.jpg/800px-Mount_Rainier_from_Crystal_Mountain.jpg'),
+    wikiTitle: 'Paradise, Pierce County, Washington',
   },
   {
     id: 'rainier-reflection',
@@ -242,7 +239,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Alpine & Mountains',
     lat: 46.7870, lng: -121.7650, distanceMiles: 92,
     notes: 'Still water mirror of Rainier at sunrise — one of the most iconic shots in the PNW',
-    image: WIKI('a/a9/Mount_Rainier_reflected_in_Reflection_Lakes.jpg/800px-Mount_Rainier_reflected_in_Reflection_Lakes.jpg'),
+    wikiTitle: 'Mount Rainier National Park',
   },
   {
     id: 'rainier-tipsoo',
@@ -250,7 +247,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Alpine & Mountains',
     lat: 46.8691, lng: -121.5175, distanceMiles: 75,
     notes: 'East-side alpine lake surrounded by wildflowers and fall colors — Rainier reflected in still water',
-    image: WIKI('6/6c/Tipsoo_Lake.jpg/800px-Tipsoo_Lake.jpg'),
+    wikiTitle: 'Tipsoo Lake',
   },
 
   // ── NATURE: Forests & Trails ──────────────────────────────────────────────
@@ -260,7 +257,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Forests & Trails',
     lat: 47.4347, lng: -121.7687, distanceMiles: 35,
     notes: 'Exposed rock ledge with Cedar River valley panorama — 4mi RT, accessible year-round',
-    image: WIKI('f/f9/Rattlesnake_Ridge_-_Rattlesnake_Ledge_from_below.jpg/800px-Rattlesnake_Ridge_-_Rattlesnake_Ledge_from_below.jpg'),
+    wikiTitle: 'Rattlesnake Mountain Scenic Area',
   },
   {
     id: 'mount-si',
@@ -268,7 +265,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Forests & Trails',
     lat: 47.4425, lng: -121.9776, distanceMiles: 30,
     notes: 'Strenuous 8mi RT — dramatic summit views of Cascade foothills and Snoqualmie Valley',
-    image: WIKI('3/39/Mount_Si_from_the_south.jpg/800px-Mount_Si_from_the_south.jpg'),
+    wikiTitle: 'Mount Si',
   },
   {
     id: 'tiger-mountain',
@@ -276,7 +273,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Forests & Trails',
     lat: 47.5010, lng: -121.9805, distanceMiles: 25,
     notes: 'Dense Northwest forest opens to a bald summit with Lake Sammamish and Cascade views',
-    image: UNS('1441974231531-c6227db76b6e'),
+    wikiTitle: 'Tiger Mountain State Forest',
   },
 
   // ── NATURE: City Parks & Forests ─────────────────────────────────────────
@@ -286,7 +283,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'City Parks & Forests',
     lat: 47.5513, lng: -122.2530, distanceMiles: 7,
     notes: '300-acre old-growth forest peninsula — eagle nests + full downtown skyline across Lake Washington',
-    image: UNS('1464822759023-fed622ff2c3b'),
+    wikiTitle: 'Seward Park (Seattle)',
   },
   {
     id: 'lincoln-park',
@@ -294,7 +291,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'City Parks & Forests',
     lat: 47.5289, lng: -122.3926, distanceMiles: 8,
     notes: 'Puget Sound beachfront + forested bluff — Olympic Mountains as your backdrop at sunset',
-    image: UNS('1520038410233-7141be7e6f97'),
+    wikiTitle: 'Lincoln Park (Seattle)',
   },
   {
     id: 'carkeek-park',
@@ -302,7 +299,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'City Parks & Forests',
     lat: 47.7124, lng: -122.3763, distanceMiles: 8,
     notes: 'Driftwood beach + old-growth ravine — passing freight trains add drama, minimal crowds',
-    image: UNS('1506905925346-21bda4d32df4'),
+    wikiTitle: 'Carkeek Park',
   },
   {
     id: 'bellevue-botanical',
@@ -310,7 +307,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'City Parks & Forests',
     lat: 47.5935, lng: -122.1699, distanceMiles: 12,
     notes: 'Manicured paths, footbridges, and seasonal blooms — polished garden aesthetic year-round',
-    image: UNS('1476067897447-90eb35ff6a70'),
+    wikiTitle: 'Bellevue Botanical Garden',
   },
 
   // ── NATURE: Lakes & Rivers ────────────────────────────────────────────────
@@ -320,7 +317,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Lakes & Rivers',
     lat: 47.8198, lng: -121.2668, distanceMiles: 55,
     notes: 'Pristine glacial lake below Index Town Wall — glass-still mirror reflections on calm mornings',
-    image: UNS('1501854140801-50d01698950b'),
+    wikiTitle: 'Lake Serene (Washington)',
   },
   {
     id: 'green-lake',
@@ -328,7 +325,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Lakes & Rivers',
     lat: 47.6781, lng: -122.3345, distanceMiles: 3,
     notes: 'Urban lake with sunrise reflections, herons, and swans — a perfect first-light shoot in the city',
-    image: UNS('1476067897447-90eb35ff6a70'),
+    wikiTitle: 'Green Lake Park',
   },
   {
     id: 'magnuson-park',
@@ -336,7 +333,7 @@ export const LOCATIONS = [
     category: 'nature', subcategory: 'Lakes & Rivers',
     lat: 47.6847, lng: -122.2580, distanceMiles: 7,
     notes: 'Mile-long Lake Washington shoreline with open meadow — great first-light reflections and wide skies',
-    image: UNS('1697729926633-1d9048a2d60a'),
+    wikiTitle: 'Warren G. Magnuson Park',
   },
 ];
 

@@ -12,6 +12,8 @@ import SunTimeline from './components/dashboard/SunTimeline';
 import LocationTabs from './components/locations/LocationTabs';
 import LocationGrid from './components/locations/LocationGrid';
 import WebcamSection from './components/webcams/WebcamSection';
+import DayForecast from './components/dashboard/DayForecast';
+import FeedbackButton from './components/feedback/FeedbackButton';
 import LoadingSpinner from './components/shared/LoadingSpinner';
 import ErrorBanner from './components/shared/ErrorBanner';
 
@@ -128,6 +130,11 @@ export default function App() {
               {currentConditions?.sunrise && currentConditions?.sunset && (
                 <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
               )}
+              <DayForecast
+                seattleData={seattleData}
+                todayIndex={todayIndex}
+                currentHourIndex={currentHourIndex}
+              />
             </div>
 
             {/* View toggle */}
@@ -161,6 +168,8 @@ export default function App() {
 
         <Footer />
       </div>
+
+      <FeedbackButton />
     </div>
   );
 }
