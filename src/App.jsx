@@ -13,6 +13,7 @@ import SunTimeline from './components/dashboard/SunTimeline';
 import LocationTabs from './components/locations/LocationTabs';
 import LocationGrid from './components/locations/LocationGrid';
 import WebcamSection from './components/webcams/WebcamSection';
+import GuideSection from './components/guide/GuideSection';
 import DayForecast from './components/dashboard/DayForecast';
 import FeedbackButton from './components/feedback/FeedbackButton';
 import LoadingSpinner from './components/shared/LoadingSpinner';
@@ -24,12 +25,13 @@ function ViewToggle({ activeView, onChange }) {
   const views = [
     { id: 'locations', icon: '📍', label: 'Locations' },
     { id: 'webcams',   icon: '📡', label: 'Live Webcams' },
+    { id: 'guide',     icon: 'ℹ️', label: 'How it works' },
   ];
   return (
     <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06]">
       {views.map(v => (
         <button key={v.id} onClick={() => onChange(v.id)}
-          className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
             activeView === v.id
               ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
               : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
@@ -167,6 +169,8 @@ export default function App() {
               {activeView === 'webcams' && (
                 <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
               )}
+
+              {activeView === 'guide' && <GuideSection />}
             </div>
           </div>
         )}
