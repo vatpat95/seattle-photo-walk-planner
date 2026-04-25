@@ -1,15 +1,13 @@
 // Keep numeric thresholds in this file aligned with src/utils/scoring.js.
-// If scoreCityLocation / scoreNatureLocation / scoreColor / scoreLabel change,
-// update the rules tables below to match.
 
 function Section({ icon, title, children }) {
   return (
-    <section className="rounded-2xl bg-white/[0.03] border border-white/[0.06] p-5 sm:p-6 space-y-3">
+    <section className="rounded-2xl bg-surface border border-border p-5 sm:p-6 space-y-3">
       <div className="flex items-center gap-2">
         <span className="text-xl">{icon}</span>
-        <h3 className="text-white font-semibold text-base">{title}</h3>
+        <h3 className="font-display text-text-primary font-semibold text-base">{title}</h3>
       </div>
-      <div className="text-slate-300 text-sm leading-relaxed space-y-3">{children}</div>
+      <div className="text-text-secondary text-sm leading-relaxed space-y-3">{children}</div>
     </section>
   );
 }
@@ -21,10 +19,10 @@ function Rule({ rule, points }) {
     ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
     : isNegative
     ? 'text-red-400 bg-red-500/10 border-red-500/20'
-    : 'text-slate-400 bg-white/[0.04] border-white/[0.08]';
+    : 'text-text-muted bg-surface border-border';
   return (
-    <div className="flex items-center justify-between gap-4 py-1.5 border-b border-white/[0.04] last:border-b-0">
-      <span className="text-slate-400 text-sm">{rule}</span>
+    <div className="flex items-center justify-between gap-4 py-1.5 border-b border-border-subtle last:border-b-0">
+      <span className="text-text-secondary text-sm">{rule}</span>
       <span className={`shrink-0 text-xs font-bold tabular-nums px-2 py-0.5 rounded-md border ${color}`}>{points}</span>
     </div>
   );
@@ -32,11 +30,11 @@ function Rule({ rule, points }) {
 
 function ColorChip({ swatch, label, range }) {
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+    <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-3 py-2">
       <span className={`w-3 h-3 rounded-full ${swatch}`} />
       <div className="flex-1 min-w-0">
-        <p className="text-white text-xs font-semibold">{label}</p>
-        <p className="text-slate-500 text-[11px]">{range}</p>
+        <p className="text-text-primary text-xs font-semibold">{label}</p>
+        <p className="text-text-muted text-[11px]">{range}</p>
       </div>
     </div>
   );
@@ -44,12 +42,12 @@ function ColorChip({ swatch, label, range }) {
 
 function FaqItem({ q, children }) {
   return (
-    <details className="group rounded-xl bg-white/[0.02] border border-white/[0.06] open:bg-white/[0.04] transition-colors">
+    <details className="group rounded-xl bg-surface border border-border open:bg-surface-hover transition-colors">
       <summary className="cursor-pointer list-none px-4 py-3 flex items-center justify-between gap-4">
-        <span className="text-white text-sm font-medium">{q}</span>
-        <span className="text-slate-500 text-xs group-open:rotate-180 transition-transform">▾</span>
+        <span className="text-text-primary text-sm font-medium">{q}</span>
+        <span className="text-text-muted text-xs group-open:rotate-180 transition-transform">▾</span>
       </summary>
-      <div className="px-4 pb-4 text-slate-400 text-sm leading-relaxed">{children}</div>
+      <div className="px-4 pb-4 text-text-secondary text-sm leading-relaxed">{children}</div>
     </details>
   );
 }
@@ -58,23 +56,23 @@ export default function GuideSection() {
   return (
     <div className="space-y-4 max-w-3xl">
       <div>
-        <h2 className="text-white font-semibold text-lg">How it works</h2>
-        <p className="text-slate-500 text-xs mt-0.5">Everything you need to know to get the most out of this tool</p>
+        <h2 className="font-display text-text-primary font-semibold text-lg">How it works</h2>
+        <p className="text-text-muted text-xs mt-0.5">Everything you need to know to get the most out of this tool</p>
       </div>
 
       <Section icon="🚀" title="Quick start">
         <ol className="list-decimal list-outside pl-5 space-y-2">
           <li>
-            <span className="text-white">Read the day verdict.</span> Three cards at the top show
+            <span className="text-text-primary">Read the day verdict.</span> Three cards at the top show
             scores for City, Viewpoints, and Nature. Pick whichever category has the strongest score
             for the current hour.
           </li>
           <li>
-            <span className="text-white">Open the matching tab.</span> The "Locations" view filters
+            <span className="text-text-primary">Open the matching tab.</span> The "Locations" view filters
             spots by category and ranks them by how good they look right now.
           </li>
           <li>
-            <span className="text-white">Tap a location card</span> for shooting notes, distance from
+            <span className="text-text-primary">Tap a location card</span> for shooting notes, distance from
             downtown, and a Wikipedia preview. Use the Live Webcams tab if you want eyes on
             conditions before you commit.
           </li>
@@ -101,7 +99,7 @@ export default function GuideSection() {
           <ColorChip swatch="bg-amber-500"   label="Fair"  range="40–59" />
           <ColorChip swatch="bg-red-500"     label="Poor"  range="0–39" />
         </div>
-        <p className="text-slate-500 text-xs">
+        <p className="text-text-muted text-xs">
           The text label uses slightly different cutoffs (Great ≥70, Fair ≥50, Poor below 50) so
           you'll occasionally see a "Great" verdict on a lime card — that's expected.
         </p>
@@ -109,30 +107,30 @@ export default function GuideSection() {
 
       <Section icon="🏙️" title="How city scores are calculated">
         <p>
-          City photography rewards <span className="text-white">soft, diffuse light</span> — overcast
+          City photography rewards <span className="text-text-primary">soft, diffuse light</span> — overcast
           skies, dry pavement, clear visibility. The base score is{' '}
-          <span className="text-white font-semibold">50</span>, then:
+          <span className="text-text-primary font-semibold">50</span>, then:
         </p>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Cloud cover</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Cloud cover</p>
           <Rule rule="40–80% (overcast — best)"   points="+25" />
           <Rule rule="80–95% (heavy overcast)"     points="+10" />
           <Rule rule="Below 40% (harsh shadows)"   points="+5" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Precipitation</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Precipitation</p>
           <Rule rule="0 mm in this hour"           points="+15" />
           <Rule rule="≤ 0.5 mm (light drizzle)"    points="+10" />
           <Rule rule="More than 2 mm"              points="−20" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Rain probability</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Rain probability</p>
           <Rule rule="Below 20%"                   points="+10" />
           <Rule rule="Below 50%"                   points="+5" />
           <Rule rule="Above 75%"                   points="−10" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Visibility</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Visibility</p>
           <Rule rule="Below 5 km (heavy fog)"      points="−25" />
           <Rule rule="Below 10 km (hazy)"          points="−10" />
         </div>
@@ -140,38 +138,38 @@ export default function GuideSection() {
 
       <Section icon="🏔️" title="How nature & viewpoint scores are calculated">
         <p>
-          Nature and viewpoint photography rewards <span className="text-white">clear skies, long
+          Nature and viewpoint photography rewards <span className="text-text-primary">clear skies, long
           visibility, low wind, and golden / blue-hour light</span>. Base score is{' '}
-          <span className="text-white font-semibold">30</span>, then:
+          <span className="text-text-primary font-semibold">30</span>, then:
         </p>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Cloud cover</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Cloud cover</p>
           <Rule rule="≤ 15% (clear)"     points="+35" />
           <Rule rule="≤ 30%"             points="+25" />
           <Rule rule="≤ 50%"             points="+10" />
           <Rule rule="≤ 70%"             points="−5" />
           <Rule rule="More than 70%"     points="−20" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Visibility</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Visibility</p>
           <Rule rule="≥ 20 km (crystal clear)"   points="+20" />
           <Rule rule="≥ 10 km"                   points="+10" />
           <Rule rule="≥ 5 km"                    points="−10" />
           <Rule rule="Below 5 km"                points="−30" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Light quality</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Light quality</p>
           <Rule rule="Golden hour"               points="+15" />
           <Rule rule="Blue hour"                 points="+8" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Wind</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Wind</p>
           <Rule rule="Below 10 mph (calm)"       points="+5" />
           <Rule rule="15–25 mph"                 points="−10" />
           <Rule rule="≥ 25 mph (gusty)"          points="−20" />
         </div>
-        <div className="rounded-xl bg-black/30 border border-white/[0.04] p-3">
-          <p className="text-slate-500 text-[11px] uppercase tracking-widest mb-2">Precipitation</p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Precipitation</p>
           <Rule rule="0 mm and < 20% chance"     points="+15" />
           <Rule rule="0.2 – 1 mm"                points="−15" />
           <Rule rule="More than 1 mm"            points="−35" />
@@ -190,7 +188,7 @@ export default function GuideSection() {
             sunrise and after sunset. Cool tones, balanced sky-to-city brightness; +8 bonus.
           </li>
           <li>
-            <span className="text-slate-300 font-semibold">Normal</span> — any other time. No bonus.
+            <span className="text-text-secondary font-semibold">Normal</span> — any other time. No bonus.
           </li>
         </ul>
         <p>
@@ -202,11 +200,11 @@ export default function GuideSection() {
       <Section icon="📡" title="Live webcams">
         <p>
           Six camera feeds — Mt Rainier (NPS), the UW campus, and Snoqualmie Pass (WSDOT). Each card
-          auto-refreshes every <span className="text-white">5 minutes</span>; press{' '}
-          <span className="text-white">↻ Refresh now</span> for an immediate update. Tapping a card
+          auto-refreshes every <span className="text-text-primary">5 minutes</span>; press{' '}
+          <span className="text-text-primary">↻ Refresh now</span> for an immediate update. Tapping a card
           opens the source page so you can see the host's full archive or higher-resolution feed.
         </p>
-        <p className="text-slate-500 text-xs">
+        <p className="text-text-muted text-xs">
           A camera marked "offline" usually means the host's server is down or stale-cached — try
           opening the source page directly.
         </p>
@@ -214,10 +212,10 @@ export default function GuideSection() {
 
       <Section icon="💾" title="Caching & freshness">
         <p>
-          Weather data is cached in your browser for <span className="text-white">5 minutes</span>,
+          Weather data is cached in your browser for <span className="text-text-primary">5 minutes</span>,
           so refreshing the page within that window is instant and uses no API quota. After 5
           minutes the next visit fetches fresh data automatically. If data is older than{' '}
-          <span className="text-white">45 minutes</span> a yellow banner appears at the top — click
+          <span className="text-text-primary">45 minutes</span> a yellow banner appears at the top — click
           "Refresh" to force-pull a new forecast immediately.
         </p>
       </Section>

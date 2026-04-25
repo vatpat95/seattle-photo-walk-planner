@@ -1,6 +1,6 @@
-import { scoreColor } from '../../utils/scoring';
+import { scoreColor, scoreLabel } from '../../utils/scoring';
 
-const RADIUS = 38;
+const RADIUS = 36;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 
 const config = {
@@ -11,14 +11,18 @@ const config = {
 };
 
 export default function ScoreRing({ score, size = 80 }) {
-  const color = scoreColor(score);
+  const color  = scoreColor(score);
+  const label  = scoreLabel(score);
   const { stroke, glow } = config[color];
   const filled = CIRCUMFERENCE * (score / 100);
 
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-label={`Score: ${score} out of 100`}
+    <svg width={size} height={size} viewBox="0 0 100 110"
+      aria-label={`Score: ${score} out of 100`}
       style={{ filter: glow }}>
-      <circle cx="50" cy="50" r={RADIUS} fill="none" strokeWidth="7" stroke="rgba(255,255,255,0.06)" />
+      {/* Track ring */}
+      <circle cx="50" cy="50" r={RADIUS} fill="none" strokeWidth="7" stroke="var(--border)" />
+      {/* Score arc */}
       <circle cx="50" cy="50" r={RADIUS} fill="none" strokeWidth="7"
         stroke={stroke}
         strokeDasharray={`${filled} ${CIRCUMFERENCE}`}
@@ -26,10 +30,17 @@ export default function ScoreRing({ score, size = 80 }) {
         transform="rotate(-90 50 50)"
         style={{ transition: 'stroke-dasharray 0.8s cubic-bezier(0.4,0,0.2,1)' }}
       />
-      <text x="50" y="47" textAnchor="middle" fontSize="21" fontWeight="800"
-        fill="white" dominantBaseline="middle">{score}</text>
-      <text x="50" y="64" textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)"
-        dominantBaseline="middle">/100</text>
+      {/* Score number */}
+      <text x="50" y="46" textAnchor="middle" fontSize="22" fontWeight="900"
+        fill="var(--text-primary)" dominantBaseline="middle">{score}</text>
+      {/* /100 label */}
+      <text x="50" y="62" textAnchor="middle" fontSize="9"
+        fill="var(--text-muted)" dominantBaseline="middle">/100</text>
+      {/* Verdict label */}
+      <text x="50" y="76" textAnchor="middle" fontSize="7" fontWeight="700"
+        fill={stroke} dominantBaseline="middle" letterSpacing="1">
+        {label.toUpperCase()}
+      </text>
     </svg>
   );
 }

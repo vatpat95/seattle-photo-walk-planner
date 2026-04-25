@@ -7,11 +7,13 @@ import { getNowSeattleMs } from './utils/timezone';
 
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
+import BottomNav from './components/layout/BottomNav';
 import DayVerdictBanner from './components/dashboard/DayVerdictBanner';
 import ConditionsSummary from './components/dashboard/ConditionsSummary';
 import SunTimeline from './components/dashboard/SunTimeline';
 import LocationTabs from './components/locations/LocationTabs';
 import LocationGrid from './components/locations/LocationGrid';
+import SpotlightCard from './components/locations/SpotlightCard';
 import WebcamSection from './components/webcams/WebcamSection';
 import GuideSection from './components/guide/GuideSection';
 import DayForecast from './components/dashboard/DayForecast';
@@ -28,14 +30,15 @@ function ViewToggle({ activeView, onChange }) {
     { id: 'guide',     icon: 'ℹ️', label: 'How it works' },
   ];
   return (
-    <div className="flex gap-1.5 bg-white/[0.03] rounded-2xl p-1.5 border border-white/[0.06]">
+    <div className="hidden sm:flex gap-1.5 bg-surface rounded-2xl p-1.5 border border-border">
       {views.map(v => (
         <button key={v.id} onClick={() => onChange(v.id)}
-          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
-            activeView === v.id
-              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-              : 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.04]'
-          }`}>
+          className={`flex-1 flex items-center justify-center gap-1.5 sm:gap-2 py-2.5 px-2 sm:px-4 rounded-xl
+                      text-xs sm:text-sm font-semibold whitespace-nowrap transition-all duration-200
+                      ${activeView === v.id
+                        ? 'bg-gold-dim text-gold border border-gold/30'
+                        : 'text-text-muted hover:text-text-secondary hover:bg-surface-hover'
+                      }`}>
           <span>{v.icon}</span>
           <span>{v.label}</span>
         </button>
@@ -55,7 +58,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
 
-  // Reset subcategory chip when switching main tabs
   const handleTabChange = (tab) => {
     setActiveTab(tab);
     setActiveSubcategory('All');
@@ -87,15 +89,9 @@ export default function App() {
     });
   }, [seattleData, rainierData, currentHourIndex, lightQuality]);
 
-  const cityAvg = useMemo(() =>
-    average(scoredLocations.filter(l => l.category === 'city').map(l => l.score)),
-    [scoredLocations]);
-  const viewpointAvg = useMemo(() =>
-    average(scoredLocations.filter(l => l.category === 'viewpoint').map(l => l.score)),
-    [scoredLocations]);
-  const natureAvg = useMemo(() =>
-    average(scoredLocations.filter(l => l.category === 'nature').map(l => l.score)),
-    [scoredLocations]);
+  const cityAvg      = useMemo(() => average(scoredLocations.filter(l => l.category === 'city').map(l => l.score)),      [scoredLocations]);
+  const viewpointAvg = useMemo(() => average(scoredLocations.filter(l => l.category === 'viewpoint').map(l => l.score)), [scoredLocations]);
+  const natureAvg    = useMemo(() => average(scoredLocations.filter(l => l.category === 'nature').map(l => l.score)),    [scoredLocations]);
 
   const tabCounts = useMemo(() => ({
     city:      scoredLocations.filter(l => l.category === 'city').length,
@@ -105,21 +101,40 @@ export default function App() {
 
   const isGoldenHour = lightQuality === 'golden';
 
+  const topLocation = useMemo(() =>
+    scoredLocations.length
+      ? scoredLocations.reduce((best, loc) => loc.score > best.score ? loc : best, scoredLocations[0])
+      : null,
+    [scoredLocations]);
+
+  const SidebarContent = (
+    <div className="space-y-5">
+      <DayVerdictBanner cityScore={cityAvg} viewpointScore={viewpointAvg} natureScore={natureAvg} />
+      <ConditionsSummary conditions={currentConditions} />
+      {currentConditions?.sunrise && currentConditions?.sunset && (
+        <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
+      )}
+      <DayForecast seattleData={seattleData} todayIndex={todayIndex} currentHourIndex={currentHourIndex} />
+    </div>
+  );
+
   return (
-    <div className="min-h-screen bg-[#04040a]">
-      {/* Ambient glow */}
+    <div className="min-h-screen bg-bg pb-20 sm:pb-0">
+      {/* Ambient blobs */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-sky-900/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-indigo-900/10 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-[28rem] h-96 blob-gold rounded-full blur-3xl" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 blob-cyan rounded-full blur-3xl" />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 py-8">
         <Header fetchedAt={fetchedAt} />
 
         {isStale && !loading && (
-          <div className="mb-6 rounded-xl bg-amber-950/40 border border-amber-500/20 px-4 py-2.5 flex items-center justify-between">
-            <span className="text-amber-400/80 text-xs">Weather data may be outdated</span>
-            <button onClick={reload} className="text-amber-400 text-xs underline hover:text-amber-300 transition-colors">Refresh</button>
+          <div className="mb-6 rounded-xl bg-gold-dim border border-gold/20 px-4 py-2.5 flex items-center justify-between">
+            <span className="text-gold-muted text-xs">Weather data may be outdated</span>
+            <button onClick={reload} className="text-gold text-xs underline hover:text-gold-muted transition-colors">
+              Refresh
+            </button>
           </div>
         )}
 
@@ -127,57 +142,63 @@ export default function App() {
         {error && !loading && <ErrorBanner message={error} onRetry={reload} />}
 
         {!loading && !error && seattleData && (
-          <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-8 lg:items-start">
-
-            {/* ── Sidebar (full-width on mobile, sticky column on desktop) ── */}
-            <div className="space-y-5 lg:sticky lg:top-8">
-              <DayVerdictBanner cityScore={cityAvg} viewpointScore={viewpointAvg} natureScore={natureAvg} />
-              <ConditionsSummary conditions={currentConditions} />
-              {currentConditions?.sunrise && currentConditions?.sunset && (
-                <SunTimeline sunrise={currentConditions.sunrise} sunset={currentConditions.sunset} />
-              )}
-              <DayForecast
-                seattleData={seattleData}
-                todayIndex={todayIndex}
-                currentHourIndex={currentHourIndex}
-              />
+          <>
+            {/* Mobile: show sidebar content when 'dashboard' tab active */}
+            <div className="sm:hidden">
+              {activeView === 'dashboard' && SidebarContent}
             </div>
 
-            {/* ── Main content area ── */}
-            <div className="space-y-5 mt-6 lg:mt-0">
-              <ViewToggle activeView={activeView} onChange={setActiveView} />
+            <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-8 lg:items-start">
+              {/* Sidebar — hidden on mobile, visible lg+ */}
+              <div className="hidden lg:block space-y-5 lg:sticky lg:top-8">
+                {SidebarContent}
+              </div>
 
-              {activeView === 'locations' && (
-                <div className="space-y-4">
-                  <LocationTabs
-                    activeTab={activeTab}
-                    onTabChange={handleTabChange}
-                    counts={tabCounts}
-                    scoredLocations={scoredLocations}
-                    activeSubcategory={activeSubcategory}
-                    onSubcategoryChange={setActiveSubcategory}
-                  />
-                  <LocationGrid
-                    scoredLocations={scoredLocations}
-                    activeTab={activeTab}
-                    activeSubcategory={activeSubcategory}
-                    isGoldenHour={isGoldenHour}
-                  />
+              {/* Main content */}
+              <div className={`space-y-5 mt-6 lg:mt-0 ${activeView === 'dashboard' ? 'hidden sm:block' : ''}`}>
+                {/* Tablet: sidebar content stacked above tabs (no sticky sidebar, no bottom nav) */}
+                <div className="sm:block lg:hidden">
+                  {SidebarContent}
                 </div>
-              )}
 
-              {activeView === 'webcams' && (
-                <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
-              )}
+                <ViewToggle activeView={activeView} onChange={setActiveView} />
 
-              {activeView === 'guide' && <GuideSection />}
+                {activeView === 'locations' && (
+                  <div className="space-y-4">
+                    {topLocation && (
+                      <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />
+                    )}
+                    <LocationTabs
+                      activeTab={activeTab}
+                      onTabChange={handleTabChange}
+                      counts={tabCounts}
+                      scoredLocations={scoredLocations}
+                      activeSubcategory={activeSubcategory}
+                      onSubcategoryChange={setActiveSubcategory}
+                    />
+                    <LocationGrid
+                      scoredLocations={scoredLocations}
+                      activeTab={activeTab}
+                      activeSubcategory={activeSubcategory}
+                      isGoldenHour={isGoldenHour}
+                    />
+                  </div>
+                )}
+
+                {activeView === 'webcams' && (
+                  <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
+                )}
+
+                {activeView === 'guide' && <GuideSection />}
+              </div>
             </div>
-          </div>
+          </>
         )}
 
         <Footer />
       </div>
 
+      <BottomNav activeView={activeView} onChange={setActiveView} />
       <FeedbackButton />
     </div>
   );

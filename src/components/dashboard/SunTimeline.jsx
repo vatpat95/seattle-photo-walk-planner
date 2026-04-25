@@ -2,7 +2,6 @@ import { formatTime } from '../../utils/formatters';
 import { getLightQuality } from '../../utils/scoring';
 import { getNowSeattleMs } from '../../utils/timezone';
 
-// Add/subtract whole hours directly in the ISO string — no Date() needed.
 function addHours(isoStr, h) {
   const [date, time] = isoStr.split('T');
   const [hh, mm] = time.split(':').map(Number);
@@ -17,9 +16,9 @@ function Zone({ left, width, right, tooltip, children }) {
       style={right != null ? { left: `${left}%`, right: 0 } : { left: `${left}%`, width: `${width}%` }}
     >
       {children}
-      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-slate-800 border border-white/10 rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/zone:opacity-100 pointer-events-none transition-opacity z-20 shadow-xl">
+      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1.5 bg-bg-elevated border border-border rounded-lg text-xs whitespace-nowrap opacity-0 group-hover/zone:opacity-100 pointer-events-none transition-opacity z-20 shadow-xl text-text-primary">
         {tooltip}
-        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+        <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-bg-elevated" />
       </div>
     </div>
   );
@@ -34,7 +33,6 @@ export default function SunTimeline({ sunrise, sunset }) {
   const sunriseHr   = new Date(sunrise).getHours();
   const sunsetHr    = new Date(sunset).getHours();
 
-  // Timeline spans 4am → midnight for context
   const spanStart   = new Date(sunrise).setHours(4, 0, 0, 0);
   const spanEnd     = new Date(sunrise).setHours(24, 0, 0, 0);
   const totalSpan   = spanEnd - spanStart;
@@ -55,8 +53,7 @@ export default function SunTimeline({ sunrise, sunset }) {
     ? '💙 Blue Hour — magical city light'
     : null;
 
-  // Derived times for tooltips
-  const goldenMornEnd = addHours(sunrise, 1);
+  const goldenMornEnd  = addHours(sunrise, 1);
   const goldenEveStart = addHours(sunset, -1);
 
   const tickHours = [4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
@@ -70,31 +67,29 @@ export default function SunTimeline({ sunrise, sunset }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="text-slate-500 text-xs font-semibold uppercase tracking-widest">Sun Timeline</span>
+        <span className="text-text-muted text-xs font-semibold uppercase tracking-widest">Sun Timeline</span>
         {lightLabel && (
           <span className="text-amber-400 text-xs font-semibold animate-pulse">{lightLabel}</span>
         )}
       </div>
 
-      {/* Timeline bar with hoverable zones */}
-      <div className="relative h-5 rounded-full bg-white/[0.04] border border-white/[0.06] overflow-visible">
-        {/* Clip inner content to rounded bounds */}
+      <div className="relative h-5 rounded-full bg-surface border border-border overflow-visible">
         <div className="absolute inset-0 rounded-full overflow-hidden">
-          {/* Night (pre-sunrise) */}
-          <div className="absolute top-0 bottom-0 left-0 bg-slate-900/60" style={{ width: `${sunrisePct}%` }} />
+          {/* Night pre-sunrise */}
+          <div className="absolute top-0 bottom-0 left-0 bg-text-primary/[0.08]" style={{ width: `${sunrisePct}%` }} />
           {/* Morning golden */}
           <div className="absolute top-0 bottom-0 bg-gradient-to-r from-amber-600/60 to-amber-500/30"
             style={{ left: `${sunrisePct}%`, width: `${goldenEndMorn - sunrisePct}%` }} />
           {/* Midday */}
-          <div className="absolute top-0 bottom-0 bg-sky-900/20"
+          <div className="absolute top-0 bottom-0 bg-sky-500/10"
             style={{ left: `${goldenEndMorn}%`, width: `${goldenStartEve - goldenEndMorn}%` }} />
           {/* Evening golden */}
           <div className="absolute top-0 bottom-0 bg-gradient-to-r from-amber-500/30 to-amber-600/60"
             style={{ left: `${goldenStartEve}%`, width: `${sunsetPct - goldenStartEve}%` }} />
-          {/* Night (post-sunset) */}
-          <div className="absolute top-0 bottom-0 bg-slate-900/60"
+          {/* Night post-sunset */}
+          <div className="absolute top-0 bottom-0 bg-text-primary/[0.08]"
             style={{ left: `${sunsetPct}%`, right: 0 }} />
-          {/* Sunrise/sunset tick marks */}
+          {/* Tick marks */}
           <div className="absolute top-0.5 bottom-0.5 w-px bg-amber-400/60" style={{ left: `${sunrisePct}%` }} />
           <div className="absolute top-0.5 bottom-0.5 w-px bg-amber-400/60" style={{ left: `${sunsetPct}%` }} />
           {/* Now marker */}
@@ -104,7 +99,6 @@ export default function SunTimeline({ sunrise, sunset }) {
           )}
         </div>
 
-        {/* Tooltip zones — overflow-visible so tooltips show above bar */}
         <Zone left={0} width={sunrisePct}
           tooltip={<>🌙 <span className="font-medium">Night</span> · before {formatTime(sunrise)}</>}>
         </Zone>
@@ -130,7 +124,7 @@ export default function SunTimeline({ sunrise, sunset }) {
           const isNight = h < sunriseHr || h > sunsetHr;
           return (
             <span key={h}
-              className={`absolute text-[9px] -translate-x-1/2 ${isNight ? 'text-slate-700' : 'text-slate-600'}`}
+              className={`absolute text-[9px] -translate-x-1/2 ${isNight ? 'text-text-faint' : 'text-text-muted'}`}
               style={{ left: `${p}%` }}>
               {fmt12h(h)}
             </span>
@@ -138,15 +132,14 @@ export default function SunTimeline({ sunrise, sunset }) {
         })}
       </div>
 
-      {/* Footer */}
-      <div className="flex items-center justify-between text-xs text-slate-600">
-        <span className="text-slate-400">🌅 {formatTime(sunrise)}</span>
+      <div className="flex items-center justify-between text-xs text-text-muted">
+        <span className="text-text-secondary">🌅 {formatTime(sunrise)}</span>
         <div className="flex gap-3 items-center">
-          <span className="text-amber-600/80">■ Golden hour</span>
-          <span className="text-slate-600/80">■ Night</span>
-          <span className="text-slate-700 text-[10px]">Seattle PT</span>
+          <span className="text-amber-500/80">■ Golden hour</span>
+          <span className="text-text-faint">■ Night</span>
+          <span className="text-text-faint text-[10px]">Seattle PT</span>
         </div>
-        <span className="text-slate-400">🌇 {formatTime(sunset)}</span>
+        <span className="text-text-secondary">🌇 {formatTime(sunset)}</span>
       </div>
     </div>
   );
