@@ -4,10 +4,10 @@ import { formatTemp, formatVisibility } from '../../utils/formatters';
 
 function Stat({ icon, label, value }) {
   return (
-    <div className="flex flex-col items-center gap-1 bg-white/[0.04] rounded-xl border border-white/[0.07] px-4 py-3 min-w-[80px]">
+    <div className="flex flex-col items-center gap-1 bg-surface border border-border rounded-xl px-4 py-3 min-w-[80px]">
       <span className="text-xl">{icon}</span>
-      <span className="text-white font-semibold text-sm tabular-nums">{value}</span>
-      <span className="text-slate-500 text-xs">{label}</span>
+      <span className="text-text-primary font-semibold text-sm tabular-nums">{value}</span>
+      <span className="text-text-muted text-xs">{label}</span>
     </div>
   );
 }
@@ -33,9 +33,9 @@ export default function ConditionsSummary({ conditions }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-slate-500 text-xs font-semibold uppercase tracking-widest">Current Conditions</span>
-        <span className="text-slate-600 text-xs">·</span>
-        <span className="text-slate-400 text-xs">{label}</span>
+        <span className="text-text-muted text-xs font-semibold uppercase tracking-widest">Current Conditions</span>
+        <span className="text-text-faint text-xs">·</span>
+        <span className="text-text-secondary text-xs">{label}</span>
       </div>
 
       <div className="relative">
@@ -47,11 +47,10 @@ export default function ConditionsSummary({ conditions }) {
           <Stat icon="👁️" label="Visibility"  value={formatVisibility((visibilityKm ?? 15) * 1000)} />
         </div>
 
-        {/* Scroll arrow indicator */}
         {showArrow && (
-          <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-1 bg-slate-800/90 border border-white/10 rounded-full px-2 py-1 shadow-lg">
-            <span className="text-slate-300 text-xs font-medium">scroll</span>
-            <span className="text-slate-300 text-sm">›</span>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-1 bg-bg-elevated/90 border border-border rounded-full px-2 py-1 shadow-lg">
+            <span className="text-text-secondary text-xs font-medium">scroll</span>
+            <span className="text-text-secondary text-sm">›</span>
           </div>
         )}
       </div>

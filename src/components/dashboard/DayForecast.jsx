@@ -45,7 +45,7 @@ export default function DayForecast({ seattleData, todayIndex, currentHourIndex 
   const computed = useMemo(() => {
     if (!seattleData) return null;
 
-    const baseIdx = todayIndex * 24;
+    const baseIdx    = todayIndex * 24;
     const sunriseStr = seattleData.daily.sunrise?.[todayIndex];
     const sunsetStr  = seattleData.daily.sunset?.[todayIndex];
     const sunriseMs  = sunriseStr ? new Date(sunriseStr).getTime() : null;
@@ -57,7 +57,7 @@ export default function DayForecast({ seattleData, todayIndex, currentHourIndex 
     const daySet = new Set(), nightSet = new Set();
 
     for (let h = 0; h < 24; h++) {
-      const idx  = baseIdx + h;
+      const idx   = baseIdx + h;
       const slice = extractHourlySlice(seattleData, idx);
       const hourMs = seattleData.hourly.time?.[idx]
         ? new Date(seattleData.hourly.time[idx]).getTime()
@@ -90,11 +90,11 @@ export default function DayForecast({ seattleData, todayIndex, currentHourIndex 
   if (!seattleData || !computed) return null;
 
   const { city, nature, astro, daySet, nightSet } = computed;
-  const allScores = [city, nature, astro];
+  const allScores  = [city, nature, astro];
   const activeSets = [daySet, daySet, nightSet];
-  const todayHour = currentHourIndex % 24;
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const hasWindow = windows.some(Boolean);
+  const todayHour  = currentHourIndex % 24;
+  const hours      = Array.from({ length: 24 }, (_, i) => i);
+  const hasWindow  = windows.some(Boolean);
 
   const collapsedSummary = windows
     .map((w, i) => w ? `${['City','Nature','Astro'][i]} ${fmt12(w.start)}–${fmt12(w.end + 1)}` : null)
@@ -102,57 +102,54 @@ export default function DayForecast({ seattleData, todayIndex, currentHourIndex 
     .join(' · ');
 
   return (
-    <div className="rounded-2xl bg-[#0c0d14] border border-white/[0.06] overflow-hidden">
+    <div className="rounded-2xl bg-bg-card border border-border overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.02] transition-colors"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-hover transition-colors"
       >
         <div className="flex items-center gap-2 min-w-0">
           <span className="text-base shrink-0">🗓️</span>
-          <span className="text-sm font-semibold text-white shrink-0">Today's Best Windows</span>
+          <span className="text-sm font-semibold text-text-primary shrink-0">Today's Best Windows</span>
           {!open && collapsedSummary && (
-            <span className="text-xs text-slate-500 truncate hidden sm:block">{collapsedSummary}</span>
+            <span className="text-xs text-text-muted truncate hidden sm:block">{collapsedSummary}</span>
           )}
         </div>
-        <span className="text-slate-500 text-xs shrink-0 ml-2">{open ? '▲' : '▼'}</span>
+        <span className="text-text-muted text-xs shrink-0 ml-2">{open ? '▲' : '▼'}</span>
       </button>
 
       {open && (
         <div className="px-4 pb-4 space-y-4">
-          {/* Three score tracks */}
           {TRACKS.map((track, ti) => {
             const scores    = allScores[ti];
             const activeSet = activeSets[ti];
 
             return (
               <div key={track.key}>
-                <div className="text-xs text-slate-500 mb-1.5 font-medium">{track.label}</div>
+                <div className="text-xs text-text-muted mb-1.5 font-medium">{track.label}</div>
                 <div className="flex items-end gap-px h-12">
                   {hours.map(h => {
-                    const score    = scores[h];
-                    const isActive = activeSet.has(h);
-                    const isPast   = h < todayHour;
+                    const score     = scores[h];
+                    const isActive  = activeSet.has(h);
+                    const isPast    = h < todayHour;
                     const isCurrent = h === todayHour;
 
                     return (
                       <div key={h} className="flex-1 relative group/bar flex flex-col justify-end">
-                        {/* Tooltip */}
-                        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-slate-800 border border-white/10 rounded-lg px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover/bar:opacity-100 pointer-events-none z-10 shadow-xl">
-                          <span className="text-white font-semibold">{fmt12(h)}</span>
-                          <span className={`ml-1 ${score >= track.threshold ? 'text-emerald-300' : 'text-slate-400'}`}>{score}</span>
+                        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 bg-bg-elevated border border-border rounded-lg px-2 py-1 text-xs whitespace-nowrap opacity-0 group-hover/bar:opacity-100 pointer-events-none z-10 shadow-xl">
+                          <span className="text-text-primary font-semibold">{fmt12(h)}</span>
+                          <span className={`ml-1 ${score >= track.threshold ? 'text-emerald-400' : 'text-text-muted'}`}>{score}</span>
                         </div>
                         <div
-                          className={`w-full rounded-sm ${isActive ? track.activeColor : track.dimColor} ${isPast ? 'opacity-25' : 'opacity-90'} ${isCurrent ? 'ring-1 ring-white/60 opacity-100' : ''}`}
+                          className={`w-full rounded-sm ${isActive ? track.activeColor : track.dimColor} ${isPast ? 'opacity-25' : 'opacity-90'} ${isCurrent ? 'ring-1 ring-border opacity-100' : ''}`}
                           style={{ height: `${Math.max(2, score * 0.44)}px` }}
                         />
                       </div>
                     );
                   })}
                 </div>
-                {/* Hour labels — every 6 hours */}
                 <div className="flex mt-0.5">
                   {hours.map(h => (
-                    <div key={h} className={`flex-1 text-center text-[8px] leading-tight ${h % 6 === 0 ? 'text-slate-600' : 'text-transparent select-none'}`}>
+                    <div key={h} className={`flex-1 text-center text-[8px] leading-tight ${h % 6 === 0 ? 'text-text-muted' : 'text-transparent select-none'}`}>
                       {fmt12(h)}
                     </div>
                   ))}
@@ -161,28 +158,25 @@ export default function DayForecast({ seattleData, todayIndex, currentHourIndex 
             );
           })}
 
-          {/* Divider */}
-          <div className="border-t border-white/[0.04]" />
+          <div className="border-t border-border-subtle" />
 
-          {/* Best windows summary */}
           <div className="space-y-1.5">
             {hasWindow
               ? windows.map((win, i) => win && (
-                  <p key={i} className="text-xs text-slate-400">
+                  <p key={i} className="text-xs text-text-secondary">
                     {WINDOW_LABELS[i]}:{' '}
-                    <span className="text-white font-medium">{fmt12(win.start)}–{fmt12(win.end + 1)}</span>
-                    <span className="text-slate-600 ml-1">(peak {win.maxScore})</span>
+                    <span className="text-text-primary font-medium">{fmt12(win.start)}–{fmt12(win.end + 1)}</span>
+                    <span className="text-text-muted ml-1">(peak {win.maxScore})</span>
                   </p>
                 ))
-              : <p className="text-xs text-slate-500">No strong photography windows today — conditions are poor across all three modes.</p>
+              : <p className="text-xs text-text-muted">No strong photography windows today — conditions are poor across all three modes.</p>
             }
           </div>
 
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3 text-xs text-slate-600">
+          <div className="flex flex-wrap gap-3 text-xs text-text-muted">
             <span>Dimmed bars = opposite time of day</span>
             <span>Faded = already passed</span>
-            <span className="ring-1 ring-white/30 rounded px-1">□ = now</span>
+            <span className="ring-1 ring-border rounded px-1">□ = now</span>
           </div>
         </div>
       )}

@@ -1,21 +1,117 @@
 @import "tailwindcss";
 
+/* ── Design Tokens via @theme (Tailwind v4) ────────────────────────────────
+   All --color-* entries become Tailwind utility classes automatically.
+   e.g. --color-bg → bg-bg, text-bg, border-bg
+   Semantic names mean components never need dark: variants in JSX.
+   ─────────────────────────────────────────────────────────────────────────── */
 @theme {
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans:    'Inter', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
+
+  --color-bg:            var(--bg);
+  --color-bg-elevated:   var(--bg-elevated);
+  --color-bg-card:       var(--bg-card);
+  --color-surface:       var(--surface);
+  --color-surface-hover: var(--surface-hover);
+  --color-border:        var(--border);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-text-primary:   var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted:     var(--text-muted);
+  --color-text-faint:     var(--text-faint);
+
+  --color-gold:       var(--gold);
+  --color-gold-muted: var(--gold-muted);
+  --color-gold-dim:   var(--gold-dim);
+  --color-cyan:       var(--cyan);
+  --color-cyan-muted: var(--cyan-muted);
+  --color-cyan-dim:   var(--cyan-dim);
 }
 
+/* ── Light Mode (default / :root) ──────────────────────────────────────────
+   Editorial magazine: warm off-whites, bold dark type, gold accents
+   ─────────────────────────────────────────────────────────────────────────── */
+:root {
+  --bg:            #faf7f2;
+  --bg-elevated:   #f2ede4;
+  --bg-card:       #ffffff;
+  --surface:       rgba(0, 0, 0, 0.04);
+  --surface-hover: rgba(0, 0, 0, 0.07);
+  --border:        rgba(0, 0, 0, 0.10);
+  --border-subtle: rgba(0, 0, 0, 0.06);
+
+  --text-primary:   #0f0e0b;
+  --text-secondary: #3d3a34;
+  --text-muted:     #78736a;
+  --text-faint:     #b0aa9f;
+
+  --gold:       #b45309;
+  --gold-muted: #d97706;
+  --gold-dim:   rgba(180, 83, 9, 0.10);
+  --cyan:       #0369a1;
+  --cyan-muted: #0284c7;
+  --cyan-dim:   rgba(3, 105, 161, 0.10);
+}
+
+/* ── Dark Mode ──────────────────────────────────────────────────────────────
+   Photography-at-night: deep charcoal, warm amber/gold, electric cyan
+   ─────────────────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:            #04040a;
+  --bg-elevated:   #0c0d14;
+  --bg-card:       #0c0d14;
+  --surface:       rgba(255, 255, 255, 0.04);
+  --surface-hover: rgba(255, 255, 255, 0.07);
+  --border:        rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+
+  --text-primary:   #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #64748b;
+  --text-faint:     #334155;
+
+  --gold:       #fbbf24;
+  --gold-muted: #f59e0b;
+  --gold-dim:   rgba(251, 191, 36, 0.12);
+  --cyan:       #38bdf8;
+  --cyan-muted: #7dd3fc;
+  --cyan-dim:   rgba(56, 189, 248, 0.12);
+}
+
+/* ── Global base ───────────────────────────────────────────────────────────── */
 @layer base {
   * {
     box-sizing: border-box;
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 0.25s;
+    transition-timing-function: ease;
   }
+
+  /* Never transition transforms, opacity, or filter globally */
+  img, video, svg,
+  [class*="animate-"],
+  [class*="card-hover"] {
+    transition: none;
+  }
+
   body {
     margin: 0;
-    background: #04040a;
-    color: #f1f5f9;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
+/* ── Utility classes ─────────────────────────────────────────────────────── */
 @layer utilities {
   .scrollbar-hide,
   .no-scrollbar {
@@ -27,28 +123,60 @@
     display: none;
   }
 
-  .glow-sky {
-    box-shadow: 0 0 20px 0 rgba(56, 189, 248, 0.15);
+  .font-display {
+    font-family: var(--font-display);
   }
-  .glow-amber {
-    box-shadow: 0 0 20px 0 rgba(245, 158, 11, 0.2);
-  }
+
   .glass {
-    background: rgba(15, 16, 25, 0.7);
+    background: var(--surface);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
   }
-  .gradient-text {
-    background: linear-gradient(135deg, #f8fafc 0%, #7dd3fc 50%, #818cf8 100%);
+
+  /* Gradient title text — adapts per mode */
+  .gradient-text-dark {
+    background: linear-gradient(135deg, #f8fafc 0%, #fbbf24 45%, #38bdf8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+    color: transparent;
   }
+  .gradient-text-light {
+    background: linear-gradient(135deg, #0f0e0b 0%, #b45309 50%, #0369a1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .glow-gold { box-shadow: 0 0 24px 0 rgba(251, 191, 36, 0.18); }
+  .glow-cyan { box-shadow: 0 0 24px 0 rgba(56, 189, 248, 0.15); }
+
   .card-hover {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease !important;
   }
   .card-hover:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+  }
+
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Ambient background blobs */
+  .blob-gold {
+    background: radial-gradient(ellipse at center, rgba(251, 191, 36, 0.07) 0%, transparent 70%);
+  }
+  .blob-cyan {
+    background: radial-gradient(ellipse at center, rgba(56, 189, 248, 0.06) 0%, transparent 70%);
+  }
+  [data-theme="light"] .blob-gold {
+    background: radial-gradient(ellipse at center, rgba(180, 83, 9, 0.05) 0%, transparent 70%);
+  }
+  [data-theme="light"] .blob-cyan {
+    background: radial-gradient(ellipse at center, rgba(3, 105, 161, 0.04) 0%, transparent 70%);
   }
 }
