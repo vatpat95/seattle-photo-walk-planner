@@ -32,3 +32,7 @@ export function visibilityToKm(meters) {
   if (meters == null) return 15;
   return meters / 1000;
 }
+
+export function buildFlickrUrl(locationName) {
+  return `https://www.flickr.com/search/?q=${encodeURIComponent(locationName + ' seattle')}`;
+}

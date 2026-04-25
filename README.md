@@ -11,6 +11,7 @@ A single-page web app that tells Seattle-area photographers **where to shoot and
 - **Real-time scoring** — Every location scored 0–100 from the current hour's cloud cover, visibility, precipitation, wind, and (for nature) ambient light quality.
 - **Three photography verdicts** — Independent averages for *City*, *Viewpoints*, and *Nature* so one poor category doesn't drag the others down.
 - **Golden / blue hour awareness** — Nature scores get a bonus during the ±1 hr / ±30 min windows around sunrise and sunset.
+- **Inspire Me** — Each location card has an "🎨 Inspire Me" link that opens a Flickr search for that spot in a new tab, letting you browse real photos from the photographer community before you head out.
 - **Live webcams** — Six Mt Rainier, UW campus, and Snoqualmie Pass feeds auto-refresh every 5 minutes. Each card links to its source page.
 - **3-day hourly forecast** — Scroll through the next 72 hours to plan ahead.
 - **Client-side weather caching** — Open-Meteo responses cached in `localStorage` for 5 min; page refreshes within that window hit zero APIs.

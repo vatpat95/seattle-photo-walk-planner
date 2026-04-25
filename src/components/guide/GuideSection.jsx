@@ -73,8 +73,9 @@ export default function GuideSection() {
           </li>
           <li>
             <span className="text-text-primary">Tap a location card</span> for shooting notes, distance from
-            downtown, and a Wikipedia preview. Use the Live Webcams tab if you want eyes on
-            conditions before you commit.
+            downtown, and a Wikipedia preview. Hit <span className="text-violet-500 font-semibold">🎨 Inspire Me</span> to
+            open Flickr in a new tab and browse real photos taken at that spot. Use the Live Webcams tab
+            if you want eyes on conditions before you commit.
           </li>
         </ol>
       </Section>
