@@ -54,7 +54,7 @@ export default function App() {
   } = useWeatherData();
 
   const { timestamp: webcamTimestamp, refresh: refreshWebcams } = useWebcamRefresh(5 * 60 * 1000);
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView, setActiveView] = useState('locations');
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
 
