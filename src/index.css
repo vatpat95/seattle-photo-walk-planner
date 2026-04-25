@@ -28,6 +28,9 @@
   --color-cyan:       var(--cyan);
   --color-cyan-muted: var(--cyan-muted);
   --color-cyan-dim:   var(--cyan-dim);
+  --color-violet:       var(--violet);
+  --color-violet-muted: var(--violet-muted);
+  --color-violet-dim:   var(--violet-dim);
 }
 
 /* ── Light Mode (default / :root) ──────────────────────────────────────────
@@ -53,6 +56,9 @@
   --cyan:       #0369a1;
   --cyan-muted: #0284c7;
   --cyan-dim:   rgba(3, 105, 161, 0.10);
+  --violet:       #6d28d9;
+  --violet-muted: #7c3aed;
+  --violet-dim:   rgba(109, 40, 217, 0.10);
 }
 
 /* ── Dark Mode ──────────────────────────────────────────────────────────────
@@ -78,6 +84,9 @@
   --cyan:       #38bdf8;
   --cyan-muted: #7dd3fc;
   --cyan-dim:   rgba(56, 189, 248, 0.12);
+  --violet:       #a78bfa;
+  --violet-muted: #c4b5fd;
+  --violet-dim:   rgba(167, 139, 250, 0.12);
 }
 
 /* ── Global base ───────────────────────────────────────────────────────────── */

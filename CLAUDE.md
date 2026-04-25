@@ -62,7 +62,7 @@ main.jsx
 - **`scoring.js`** — `scoreCityLocation`, `scoreNatureLocation`, `scoreAstroLocation`, `getLightQuality`, `scoreColor`, `scoreLabel`, `average`. **All scoring rules live here. Do not inline scoring logic in components.**
 - **`weatherHelpers.js`** — `describeWmoCode`, `findCurrentHourIndex`, `findTodayIndex`.
 - **`timezone.js`** — Seattle-local time helpers. Use these instead of raw `Date` arithmetic so DST behaves correctly.
-- **`formatters.js`** — Display-layer formatting. Components should use these rather than building strings inline.
+- **`formatters.js`** — Display-layer formatting. Components should use these rather than building strings inline. Includes `buildFlickrUrl(locationName)` which constructs the Flickr search URL used by the "Inspire Me" button on each location card.
 
 ### Components (`src/components/`) — organized by domain
 
@@ -107,8 +107,8 @@ v4's Vite plugin has zero-config CSS generation and much faster HMR. No `tailwin
 
 - Tailwind utility classes only. No CSS modules, no styled-components.
 - **Theme system:** CSS custom properties on `:root` (light) and `[data-theme="dark"]` (dark), mapped to Tailwind utilities via `@theme` in `index.css`. Use semantic tokens everywhere — `bg-bg-card`, `text-text-primary`, `text-gold`, `text-cyan` — never hardcoded hex or `dark:` variants.
-  - Dark palette: `#04040a` bg, `#0c0d14` card, `#fbbf24` gold, `#38bdf8` cyan
-  - Light palette: `#faf7f2` warm cream bg, `#ffffff` card, `#b45309` gold, `#0369a1` cyan
+  - Dark palette: `#04040a` bg, `#0c0d14` card, `#fbbf24` gold, `#38bdf8` cyan, `#a78bfa` violet
+  - Light palette: `#faf7f2` warm cream bg, `#ffffff` card, `#b45309` gold, `#0369a1` cyan, `#6d28d9` violet
 - Score colors (`emerald`/`lime`/`amber`/`red`) are intentionally fixed — they remain the same in both modes.
 - For gradients that need CSS vars (e.g. image overlays blending into the card background), use inline `style={{ background: 'linear-gradient(... var(--bg-card) ...)' }}` — Tailwind can't reference runtime vars in gradient utilities.
 - **Typography:** `Playfair Display` (loaded via Google Fonts) as `font-display` for hero titles, score numbers, and SpotlightCard location names. Inter for all body text.

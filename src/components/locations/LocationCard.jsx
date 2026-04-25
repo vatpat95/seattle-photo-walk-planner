@@ -2,6 +2,7 @@ import { useState } from 'react';
 import ScoreRing from '../shared/ScoreRing';
 import { scoreColor } from '../../utils/scoring';
 import { useWikipediaImage } from '../../hooks/useWikipediaImage';
+import { buildFlickrUrl } from '../../utils/formatters';
 
 const ringColors = {
   emerald: 'ring-emerald-500/20',
@@ -91,16 +92,28 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
           )}
         </div>
 
-        <a
-          href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}
-          target="_blank" rel="noopener noreferrer"
-          className="mt-auto pt-2 flex items-center gap-1 text-xs transition-colors w-fit"
-          style={{ color: 'var(--cyan)' }}
-          onMouseEnter={e => e.currentTarget.style.color = 'var(--cyan-muted)'}
-          onMouseLeave={e => e.currentTarget.style.color = 'var(--cyan)'}
-        >
-          <span>📍</span> Get Directions
-        </a>
+        <div className="mt-auto pt-2 flex items-center gap-4 flex-wrap">
+          <a
+            href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs transition-colors w-fit"
+            style={{ color: 'var(--cyan)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--cyan-muted)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--cyan)'}
+          >
+            <span>📍</span> Get Directions
+          </a>
+          <a
+            href={buildFlickrUrl(location.name)}
+            target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs transition-colors w-fit"
+            style={{ color: 'var(--violet)' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--violet-muted)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--violet)'}
+          >
+            <span>🎨</span> Inspire Me
+          </a>
+        </div>
       </div>
     </div>
   );
