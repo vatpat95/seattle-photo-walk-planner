@@ -14,7 +14,8 @@ A single-page web app that tells Seattle-area photographers **where to shoot and
 - **Live webcams** — Six Mt Rainier, UW campus, and Snoqualmie Pass feeds auto-refresh every 5 minutes. Each card links to its source page.
 - **3-day hourly forecast** — Scroll through the next 72 hours to plan ahead.
 - **Client-side weather caching** — Open-Meteo responses cached in `localStorage` for 5 min; page refreshes within that window hit zero APIs.
-- **Mobile-first responsive layout** — Sticky-sidebar on desktop, single-column on mobile, with scroll affordances so hidden tabs never stay hidden.
+- **Dark / light mode toggle** — Persisted to `localStorage`; system preference is respected on first visit with no flash of wrong theme.
+- **Adaptive layout** — Mobile bottom tab bar, tablet stacked sections, desktop sticky 380px sidebar + main column.
 - **Zero backend** — Runs entirely in the browser. Deploys to any static host.
 
 ---
@@ -80,14 +81,16 @@ Set them locally in `.env` (gitignored) or in the Vercel project's **Environment
 seattle-photo-walk-planner/
 ├── public/                         static assets served as-is
 ├── src/
-│   ├── App.jsx                     root orchestrator — owns view/tab state
-│   ├── main.jsx                    React root + Vercel Analytics wrapper
-│   ├── index.css                   Tailwind v4 entry + custom utilities
+│   ├── App.jsx                     root orchestrator — owns view/tab state + adaptive layout
+│   ├── main.jsx                    React root + ThemeProvider + Vercel Analytics
+│   ├── index.css                   Tailwind v4 entry; CSS custom property tokens; light + dark values
+│   ├── contexts/
+│   │   └── ThemeContext.jsx        dark/light state, toggle(), useTheme() hook
 │   ├── components/
 │   │   ├── dashboard/              DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard
+│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard, SpotlightCard
 │   │   ├── webcams/                WebcamSection, WebcamFeed
-│   │   ├── layout/                 Header, Footer
+│   │   ├── layout/                 Header, Footer, ThemeToggle, BottomNav
 │   │   ├── feedback/               FeedbackButton (Web3Forms modal)
 │   │   └── shared/                 ScoreRing, WeatherIcon, LoadingSpinner, ErrorBanner
 │   ├── hooks/

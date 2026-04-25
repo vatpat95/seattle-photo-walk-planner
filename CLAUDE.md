@@ -16,16 +16,18 @@
 
 ```
 main.jsx
-  └── <App />                             src/App.jsx — top-level state + layout
-        ├── useWeatherData()              src/hooks/useWeatherData.js
-        │     └── Open-Meteo API × 2 (Seattle + Rainier), cached 5 min in localStorage
-        ├── Header / Footer               src/components/layout/
-        ├── DayVerdictBanner              three category scores (city/viewpoint/nature)
-        ├── ConditionsSummary             temp, cloud, wind, rain, visibility chips
-        ├── SunTimeline                   sunrise → now → sunset bar
-        ├── DayForecast                   72-hour hourly scroller
-        ├── LocationTabs + LocationGrid   browseable, filterable, scored cards
-        └── WebcamSection                 6 live image feeds, 5-min refresh
+  └── <ThemeProvider>                     src/contexts/ThemeContext.jsx — dark/light state
+        └── <App />                       src/App.jsx — top-level state + adaptive layout
+              ├── useWeatherData()        src/hooks/useWeatherData.js
+              │     └── Open-Meteo API × 2 (Seattle + Rainier), cached 5 min in localStorage
+              ├── Header / Footer / ThemeToggle / BottomNav   src/components/layout/
+              ├── DayVerdictBanner        three category scores (city/viewpoint/nature)
+              ├── ConditionsSummary       temp, cloud, wind, rain, visibility chips
+              ├── SunTimeline             sunrise → now → sunset bar
+              ├── DayForecast             72-hour hourly scroller
+              ├── SpotlightCard           hero card for the day's top-scoring location
+              ├── LocationTabs + LocationGrid   browseable, filterable, scored cards
+              └── WebcamSection           6 live image feeds, 5-min refresh
 ```
 
 **Data flow per render:**
@@ -42,8 +44,12 @@ main.jsx
 
 ### Entry points
 
-- **`src/main.jsx`** — Mounts `<App />` in `StrictMode`, wraps in Vercel `<Analytics />`. Do not add business logic here.
-- **`src/App.jsx`** — Orchestration only: owns `activeView`, `activeTab`, `activeSubcategory`. Delegates all data fetching to hooks and all UI to components.
+- **`src/main.jsx`** — Mounts `<App />` in `StrictMode`, wrapped in `<ThemeProvider>` and Vercel `<Analytics />`. Do not add business logic here.
+- **`src/App.jsx`** — Orchestration only: owns `activeView`, `activeTab`, `activeSubcategory`. Adaptive layout: mobile BottomNav tabs, tablet stacked sections, desktop sticky sidebar. Delegates all data fetching to hooks and all UI to components.
+
+### Theme (`src/contexts/`)
+
+- **`ThemeContext.jsx`** — `ThemeProvider` initialises from `document.documentElement.getAttribute('data-theme')` (set by the no-flash inline script in `index.html`). Syncs changes to `localStorage` and the `data-theme` attribute. Exports `useTheme()` returning `{ theme, toggle, isDark }`.
 
 ### Hooks (`src/hooks/`)
 
@@ -61,9 +67,9 @@ main.jsx
 ### Components (`src/components/`) — organized by domain
 
 - **`dashboard/`** — DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-- **`locations/`** — LocationTabs, LocationGrid, LocationCard
+- **`locations/`** — LocationTabs, LocationGrid, LocationCard, SpotlightCard (hero card for top-scoring location)
 - **`webcams/`** — WebcamSection, WebcamFeed
-- **`layout/`** — Header, Footer
+- **`layout/`** — Header, Footer, ThemeToggle (sun/moon icon button), BottomNav (mobile 4-tab fixed bar)
 - **`shared/`** — ScoreRing, WeatherIcon, LoadingSpinner, ErrorBanner
 - **`feedback/`** — FeedbackButton (Web3Forms)
 
@@ -100,9 +106,15 @@ v4's Vite plugin has zero-config CSS generation and much faster HMR. No `tailwin
 ### Styling
 
 - Tailwind utility classes only. No CSS modules, no styled-components.
-- Dark theme only. Background anchor: `bg-[#04040a]`. Primary text: `text-slate-200` / `text-white`. Accents: `text-sky-400`, `text-amber-400`, `text-emerald-400`.
+- **Theme system:** CSS custom properties on `:root` (light) and `[data-theme="dark"]` (dark), mapped to Tailwind utilities via `@theme` in `index.css`. Use semantic tokens everywhere — `bg-bg-card`, `text-text-primary`, `text-gold`, `text-cyan` — never hardcoded hex or `dark:` variants.
+  - Dark palette: `#04040a` bg, `#0c0d14` card, `#fbbf24` gold, `#38bdf8` cyan
+  - Light palette: `#faf7f2` warm cream bg, `#ffffff` card, `#b45309` gold, `#0369a1` cyan
+- Score colors (`emerald`/`lime`/`amber`/`red`) are intentionally fixed — they remain the same in both modes.
+- For gradients that need CSS vars (e.g. image overlays blending into the card background), use inline `style={{ background: 'linear-gradient(... var(--bg-card) ...)' }}` — Tailwind can't reference runtime vars in gradient utilities.
+- **Typography:** `Playfair Display` (loaded via Google Fonts) as `font-display` for hero titles, score numbers, and SpotlightCard location names. Inter for all body text.
 - Match existing radius scale: cards `rounded-2xl`, chips/pills `rounded-full`, badges `rounded-xl`.
 - Scrollable rows that might overflow **must** use the `useScrollArrow` pattern (see `LocationTabs.jsx`) so users can tell there's more.
+- The no-flash inline `<script>` in `index.html` reads `localStorage` and sets `data-theme` on `<html>` before React hydrates — don't remove it or move it after `<body>`.
 
 ### State & hooks
 
@@ -161,7 +173,10 @@ Only add to `dependencies` if it runs in the browser bundle. Everything else goe
 
 ### When touching the UI
 
-- Test on **mobile width** (≤ 420 px) first. The app is mobile-first; desktop is just the two-column layout above 1024 px.
+- Test on **mobile width** (≤ 420 px) first. The app is mobile-first.
+- **Adaptive breakpoints:** `sm` (640px) hides `BottomNav` and shows `ViewToggle`. `lg` (1024px) activates the sticky 380px sidebar. Check all three at 375px, 768px, and 1280px.
+- The `BottomNav` drives `activeView` on mobile. Content areas that should only show in certain views must respect this state — check `App.jsx` for the `activeView === 'dashboard'` / `hidden sm:block` patterns.
+- `FeedbackButton` uses `bottom-24 sm:bottom-6` to clear the BottomNav on mobile — preserve this if the button is moved.
 - Any horizontally-scrolling container needs a visible affordance (see `LocationTabs` + `ConditionsSummary` for the pattern).
 - Run `npm run build` before considering a UI change done — Tailwind v4's JIT can surprise you.
 
