@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useWeatherData, extractHourlySlice, deriveConditions } from './hooks/useWeatherData';
 import { useWebcamRefresh } from './hooks/useWebcamRefresh';
 import { LOCATIONS } from './constants/locations';
@@ -57,6 +57,10 @@ export default function App() {
   const [activeView, setActiveView] = useState('locations');
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [activeView]);
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
