@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { useWeatherData, extractHourlySlice, deriveConditions } from './hooks/useWeatherData';
 import { useWebcamRefresh } from './hooks/useWebcamRefresh';
 import { LOCATIONS } from './constants/locations';
@@ -54,13 +54,22 @@ export default function App() {
   } = useWeatherData();
 
   const { timestamp: webcamTimestamp, refresh: refreshWebcams } = useWebcamRefresh(5 * 60 * 1000);
-  const [activeView, setActiveView] = useState('locations');
+  const [activeView, setActiveView] = useState('dashboard');
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [activeView]);
+  const handleNavChange = (view) => {
+    setActiveView(view);
+    // Defer scroll until after React re-render commits, otherwise the
+    // state update's DOM flush can cancel an in-progress smooth scroll.
+    setTimeout(() => {
+      const el = document.getElementById(`mobile-section-${view}`);
+      if (el) {
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top, behavior: 'instant' });
+      }
+    }, 0);
+  };
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -147,53 +156,72 @@ export default function App() {
 
         {!loading && !error && seattleData && (
           <>
-            {/* Mobile: show sidebar content when 'dashboard' tab active */}
-            <div className="sm:hidden">
-              {activeView === 'dashboard' && SidebarContent}
-            </div>
+            {/* Mobile: single scrollable page — all sections always rendered */}
+            <div className="sm:hidden space-y-8">
+              <div id="mobile-section-dashboard">{SidebarContent}</div>
 
-            <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-8 lg:items-start">
-              {/* Sidebar — hidden on mobile, visible lg+ */}
-              <div className="hidden lg:block space-y-5 lg:sticky lg:top-8">
-                {SidebarContent}
+              <div id="mobile-section-locations" className="space-y-4">
+                {topLocation && <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />}
+                <LocationTabs
+                  activeTab={activeTab} onTabChange={handleTabChange}
+                  counts={tabCounts} scoredLocations={scoredLocations}
+                  activeSubcategory={activeSubcategory} onSubcategoryChange={setActiveSubcategory}
+                />
+                <LocationGrid
+                  scoredLocations={scoredLocations} activeTab={activeTab}
+                  activeSubcategory={activeSubcategory} isGoldenHour={isGoldenHour}
+                />
               </div>
 
-              {/* Main content */}
-              <div className={`space-y-5 mt-6 lg:mt-0 ${activeView === 'dashboard' ? 'hidden sm:block' : ''}`}>
-                {/* Tablet: sidebar content stacked above tabs (no sticky sidebar, no bottom nav) */}
-                <div className="sm:block lg:hidden">
+              <div id="mobile-section-webcams">
+                <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
+              </div>
+
+              <div id="mobile-section-guide">
+                <GuideSection />
+              </div>
+            </div>
+
+            {/* Tablet + Desktop layout */}
+            <div className="hidden sm:block">
+              <div className="lg:grid lg:grid-cols-[380px_1fr] lg:gap-8 lg:items-start">
+                {/* Sidebar — visible lg+ only */}
+                <div className="hidden lg:block space-y-5 lg:sticky lg:top-8">
                   {SidebarContent}
                 </div>
 
-                <ViewToggle activeView={activeView} onChange={setActiveView} />
-
-                {activeView === 'locations' && (
-                  <div className="space-y-4">
-                    {topLocation && (
-                      <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />
-                    )}
-                    <LocationTabs
-                      activeTab={activeTab}
-                      onTabChange={handleTabChange}
-                      counts={tabCounts}
-                      scoredLocations={scoredLocations}
-                      activeSubcategory={activeSubcategory}
-                      onSubcategoryChange={setActiveSubcategory}
-                    />
-                    <LocationGrid
-                      scoredLocations={scoredLocations}
-                      activeTab={activeTab}
-                      activeSubcategory={activeSubcategory}
-                      isGoldenHour={isGoldenHour}
-                    />
+                {/* Main content */}
+                <div className="space-y-5 mt-6 lg:mt-0">
+                  {/* Tablet: sidebar stacked above tabs */}
+                  <div className="sm:block lg:hidden">
+                    {SidebarContent}
                   </div>
-                )}
 
-                {activeView === 'webcams' && (
-                  <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
-                )}
+                  <ViewToggle activeView={activeView} onChange={setActiveView} />
 
-                {activeView === 'guide' && <GuideSection />}
+                  {activeView === 'locations' && (
+                    <div className="space-y-4">
+                      {topLocation && (
+                        <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />
+                      )}
+                      <LocationTabs
+                        activeTab={activeTab} onTabChange={handleTabChange}
+                        counts={tabCounts} scoredLocations={scoredLocations}
+                        activeSubcategory={activeSubcategory} onSubcategoryChange={setActiveSubcategory}
+                      />
+                      <LocationGrid
+                        scoredLocations={scoredLocations} activeTab={activeTab}
+                        activeSubcategory={activeSubcategory} isGoldenHour={isGoldenHour}
+                      />
+                    </div>
+                  )}
+
+                  {activeView === 'webcams' && (
+                    <WebcamSection timestamp={webcamTimestamp} onRefresh={refreshWebcams} />
+                  )}
+
+                  {activeView === 'guide' && <GuideSection />}
+                </div>
               </div>
             </div>
           </>
@@ -202,7 +230,7 @@ export default function App() {
         <Footer />
       </div>
 
-      <BottomNav activeView={activeView} onChange={setActiveView} />
+      <BottomNav activeView={activeView} onChange={handleNavChange} />
       <FeedbackButton />
     </div>
   );
