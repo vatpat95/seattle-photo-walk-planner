@@ -10,7 +10,7 @@ const tagColors = {
   red:     'bg-red-500/10 text-red-400 border-red-500/20',
 };
 
-export default function TopThreeSection({ topThree, lightQuality, onViewDetails }) {
+export default function TopThreeSection({ topThree, lightQuality, onViewDetails, selectedStyle = null }) {
   if (!topThree?.length) return null;
 
   return (
@@ -22,7 +22,7 @@ export default function TopThreeSection({ topThree, lightQuality, onViewDetails 
       {topThree.map((loc, i) => {
         const color  = scoreColor(loc.score);
         const tags   = getLocationTags(loc, lightQuality);
-        const reason = getScoreReasons(loc, loc.conditions, lightQuality)[0];
+        const reason = getScoreReasons(loc, loc.conditions, lightQuality, selectedStyle)[0];
 
         return (
           <div

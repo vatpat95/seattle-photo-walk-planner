@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useWeatherData, extractHourlySlice, deriveConditions } from './hooks/useWeatherData';
 import { useWebcamRefresh } from './hooks/useWebcamRefresh';
 import { LOCATIONS } from './constants/locations';
-import { scoreCityLocation, scoreNatureLocation, getLightQuality, average, findBestWindow, getScoreReasons } from './utils/scoring';
+import { scoreCityLocation, scoreNatureLocation, getLightQuality, average, findBestWindow, getScoreReasons, getStyleFitBonus } from './utils/scoring';
 import { getNowSeattleMs } from './utils/timezone';
 
 import Header from './components/layout/Header';
@@ -12,6 +12,7 @@ import DayVerdictBanner from './components/dashboard/DayVerdictBanner';
 import ConditionsSummary from './components/dashboard/ConditionsSummary';
 import SunTimeline from './components/dashboard/SunTimeline';
 import LocationTabs from './components/locations/LocationTabs';
+import StyleSelector from './components/locations/StyleSelector';
 import LocationGrid from './components/locations/LocationGrid';
 import SpotlightCard from './components/locations/SpotlightCard';
 import TopThreeSection from './components/locations/TopThreeSection';
@@ -58,6 +59,15 @@ export default function App() {
   const [activeView, setActiveView] = useState('locations');
   const [activeTab, setActiveTab] = useState('city');
   const [activeSubcategory, setActiveSubcategory] = useState('All');
+  const [selectedStyle, setSelectedStyle] = useState(
+    () => localStorage.getItem('spwp_style') ?? null
+  );
+
+  const handleStyleChange = (style) => {
+    setSelectedStyle(style);
+    if (style === null) localStorage.removeItem('spwp_style');
+    else localStorage.setItem('spwp_style', style);
+  };
 
   const handleNavChange = (view) => {
     setActiveView(view);
@@ -96,22 +106,31 @@ export default function App() {
     return LOCATIONS.map(loc => {
       const data = RAINIER_IDS.has(loc.id) ? (rainierData ?? seattleData) : seattleData;
       const slice = extractHourlySlice(data, currentHourIndex);
-      const score = loc.category === 'city'
+      const weatherScore = loc.category === 'city'
         ? scoreCityLocation(slice)
         : scoreNatureLocation(slice, lightQuality);
-      return { ...loc, score, conditions: slice };
+      const styleBonus = getStyleFitBonus(loc, selectedStyle);
+      const score = Math.max(0, Math.min(100, weatherScore + styleBonus));
+      return { ...loc, score, weatherScore, conditions: slice };
     });
-  }, [seattleData, rainierData, currentHourIndex, lightQuality]);
+  }, [seattleData, rainierData, currentHourIndex, lightQuality, selectedStyle]);
 
   const cityAvg      = useMemo(() => average(scoredLocations.filter(l => l.category === 'city').map(l => l.score)),      [scoredLocations]);
   const viewpointAvg = useMemo(() => average(scoredLocations.filter(l => l.category === 'viewpoint').map(l => l.score)), [scoredLocations]);
   const natureAvg    = useMemo(() => average(scoredLocations.filter(l => l.category === 'nature').map(l => l.score)),    [scoredLocations]);
 
+  const styleFilteredLocations = useMemo(() => {
+    if (!selectedStyle) return scoredLocations;
+    return scoredLocations.filter(
+      l => Array.isArray(l.styleTags) && l.styleTags.includes(selectedStyle)
+    );
+  }, [scoredLocations, selectedStyle]);
+
   const tabCounts = useMemo(() => ({
-    city:      scoredLocations.filter(l => l.category === 'city').length,
-    viewpoint: scoredLocations.filter(l => l.category === 'viewpoint').length,
-    nature:    scoredLocations.filter(l => l.category === 'nature').length,
-  }), [scoredLocations]);
+    city:      styleFilteredLocations.filter(l => l.category === 'city').length,
+    viewpoint: styleFilteredLocations.filter(l => l.category === 'viewpoint').length,
+    nature:    styleFilteredLocations.filter(l => l.category === 'nature').length,
+  }), [styleFilteredLocations]);
 
   const isGoldenHour = lightQuality === 'golden';
 
@@ -170,12 +189,12 @@ export default function App() {
   }, [seattleData, topLocation, todayIndex, currentConditions]);
 
   const topReasons = useMemo(() =>
-    topLocation ? getScoreReasons(topLocation, topLocation.conditions, lightQuality) : [],
-    [topLocation, lightQuality]);
+    topLocation ? getScoreReasons(topLocation, topLocation.conditions, lightQuality, selectedStyle) : [],
+    [topLocation, lightQuality, selectedStyle]);
 
   const goldenReasons = useMemo(() =>
-    goldenHourLocation ? getScoreReasons(goldenHourLocation, goldenHourLocation.conditions, 'golden') : [],
-    [goldenHourLocation]);
+    goldenHourLocation ? getScoreReasons(goldenHourLocation, goldenHourLocation.conditions, 'golden', selectedStyle) : [],
+    [goldenHourLocation, selectedStyle]);
 
   const topThree = useMemo(() =>
     [...scoredLocations].sort((a, b) => b.score - a.score).slice(0, 3),
@@ -207,6 +226,8 @@ export default function App() {
 
       <div className="relative max-w-7xl mx-auto px-4 py-8">
         <Header fetchedAt={fetchedAt} />
+
+        <StyleSelector selectedStyle={selectedStyle} onStyleChange={handleStyleChange} />
 
         {isStale && !loading && (
           <div className="mb-6 rounded-xl bg-gold-dim border border-gold/20 px-4 py-2.5 flex items-center justify-between">
@@ -252,16 +273,18 @@ export default function App() {
                   topThree={topThree}
                   lightQuality={lightQuality}
                   onViewDetails={handleViewDetails}
+                  selectedStyle={selectedStyle}
                 />
                 <LocationTabs
                   activeTab={activeTab} onTabChange={handleTabChange}
-                  counts={tabCounts} scoredLocations={scoredLocations}
+                  counts={tabCounts} scoredLocations={styleFilteredLocations}
                   activeSubcategory={activeSubcategory} onSubcategoryChange={setActiveSubcategory}
                 />
                 <LocationGrid
-                  scoredLocations={scoredLocations} activeTab={activeTab}
+                  scoredLocations={styleFilteredLocations} activeTab={activeTab}
                   activeSubcategory={activeSubcategory} isGoldenHour={isGoldenHour}
                   lightQuality={lightQuality}
+                  selectedStyle={selectedStyle}
                 />
               </div>
 
@@ -321,16 +344,19 @@ export default function App() {
                           topThree={topThree}
                           lightQuality={lightQuality}
                           onViewDetails={handleViewDetails}
+                          selectedStyle={selectedStyle}
                         />
                       </div>
                       <LocationTabs
                         activeTab={activeTab} onTabChange={handleTabChange}
-                        counts={tabCounts} scoredLocations={scoredLocations}
+                        counts={tabCounts} scoredLocations={styleFilteredLocations}
                         activeSubcategory={activeSubcategory} onSubcategoryChange={setActiveSubcategory}
                       />
                       <LocationGrid
-                        scoredLocations={scoredLocations} activeTab={activeTab}
+                        scoredLocations={styleFilteredLocations} activeTab={activeTab}
                         activeSubcategory={activeSubcategory} isGoldenHour={isGoldenHour}
+                        lightQuality={lightQuality}
+                        selectedStyle={selectedStyle}
                       />
                     </div>
                   )}

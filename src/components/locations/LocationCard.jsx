@@ -24,7 +24,7 @@ const ratingConfig = {
   poor:      { label: 'Poor',      cls: 'text-red-400 bg-red-500/10' },
 };
 
-export default function LocationCard({ location, score, conditions, isGoldenHour, lightQuality = 'normal' }) {
+export default function LocationCard({ location, score, conditions, isGoldenHour, lightQuality = 'normal', selectedStyle = null }) {
   const [imgError, setImgError]     = useState(false);
   const [imgLoaded, setImgLoaded]   = useState(false);
   const [showFactors, setShowFactors] = useState(false);
@@ -35,7 +35,7 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
   const showGoldenBanner = isGoldenHour && location.category !== 'city';
   const { cloudCover, precipProb, windMph, visibilityKm } = conditions;
   const gradient = categoryGradients[location.category] ?? 'from-slate-800 to-slate-900';
-  const factors  = showFactors ? getScoreFactors(location, conditions, lightQuality) : null;
+  const factors  = showFactors ? getScoreFactors(location, conditions, lightQuality, selectedStyle) : null;
 
   return (
     <div id={`loc-${location.id}`} className={`group rounded-2xl bg-bg-card ring-1 ${ring} overflow-hidden card-hover flex flex-col`}>
@@ -78,6 +78,11 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
               </span>
               {location.distanceMiles > 0 && (
                 <span className="text-text-faint text-xs">{location.distanceMiles} mi</span>
+              )}
+              {selectedStyle && Array.isArray(location.styleTags) && location.styleTags.includes(selectedStyle) && (
+                <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border bg-gold-dim text-gold border-gold/30">
+                  ★ Style match
+                </span>
               )}
             </div>
             <h3 className="text-text-primary font-semibold text-sm leading-snug">{location.name}</h3>

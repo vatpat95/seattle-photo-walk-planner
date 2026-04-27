@@ -18,7 +18,7 @@ export function findBestWindow(scores, eligibleSet, threshold) {
   return best;
 }
 
-export function getScoreReasons(loc, conditions, lightQuality) {
+export function getScoreReasons(loc, conditions, lightQuality, selectedStyle = null) {
   const { cloudCover = 50, precipMM = 0, precipProb = 0, visibilityKm = 15, windMph = 10 } = conditions ?? {};
   const factors = [];
 
@@ -58,6 +58,20 @@ export function getScoreReasons(loc, conditions, lightQuality) {
     if (precipMM === 0 && precipProb < 20) factors.push({ score: 15, text: 'Dry conditions' });
     else if (precipMM > 1) factors.push({ score: -35, text: `Rain likely (${precipMM}mm)` });
     else factors.push({ score: -5, text: `Rain possible (${precipProb}%)` });
+  }
+
+  if (selectedStyle) {
+    const STYLE_LABELS = {
+      landscape: 'Landscape', street: 'Street', architecture: 'Architecture',
+      portrait: 'Portrait', night: 'Night', 'rainy-moody': 'Rainy / Moody',
+      'beginner-friendly': 'Beginner-Friendly',
+    };
+    const label = STYLE_LABELS[selectedStyle] ?? selectedStyle;
+    if (Array.isArray(loc.styleTags) && loc.styleTags.includes(selectedStyle)) {
+      factors.push({ score: 20, text: `Great for ${label} photography` });
+    } else {
+      factors.push({ score: -10, text: `Not a strong ${label} photography spot` });
+    }
   }
 
   factors.sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
@@ -158,7 +172,7 @@ export function getLocationTags(loc, lightQuality) {
   return tags.slice(0, 2);
 }
 
-export function getScoreFactors(loc, conditions, lightQuality) {
+export function getScoreFactors(loc, conditions, lightQuality, selectedStyle = null) {
   const { cloudCover = 50, precipMM = 0, precipProb = 0, visibilityKm = 15, windMph = 10 } = conditions ?? {};
   const isCity = loc.category === 'city';
 
@@ -199,11 +213,26 @@ export function getScoreFactors(loc, conditions, lightQuality) {
   else if (windMph < 20)  wind = { rating: 'fair',      description: `${Math.round(windMph)}mph — consider a stabilizer` };
   else                    wind = { rating: 'poor',      description: `${Math.round(windMph)}mph — difficult to stabilize` };
 
+  let styleFit = null;
+  if (selectedStyle) {
+    const STYLE_LABELS = {
+      landscape: 'Landscape', street: 'Street', architecture: 'Architecture',
+      portrait: 'Portrait', night: 'Night', 'rainy-moody': 'Rainy / Moody',
+      'beginner-friendly': 'Beginner-Friendly',
+    };
+    const label = STYLE_LABELS[selectedStyle] ?? selectedStyle;
+    const matches = Array.isArray(loc.styleTags) && loc.styleTags.includes(selectedStyle);
+    styleFit = matches
+      ? { rating: 'excellent', description: `Suits your ${label} style` }
+      : { rating: 'fair',      description: `Not a primary ${label} spot` };
+  }
+
   return [
     { label: 'Light quality', ...light },
     { label: 'Visibility',    ...visibility },
     { label: 'Rain risk',     ...rain },
     { label: 'Wind',          ...wind },
+    ...(styleFit ? [{ label: 'Style fit', ...styleFit }] : []),
   ];
 }
 
@@ -258,6 +287,12 @@ export function scoreAstroLocation(h) {
   else if (windMph > 20) score -= 10;
 
   return Math.max(0, Math.min(100, Math.round(score)));
+}
+
+export function getStyleFitBonus(location, selectedStyle) {
+  if (!selectedStyle) return 0;
+  if (Array.isArray(location.styleTags) && location.styleTags.includes(selectedStyle)) return 20;
+  return -10;
 }
 
 export function average(nums) {
