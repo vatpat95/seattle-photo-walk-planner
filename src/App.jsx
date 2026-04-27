@@ -293,32 +293,36 @@ export default function App() {
 
                   {activeView === 'locations' && (
                     <div className="space-y-4">
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        {topLocation && (
-                          <SpotlightCard
-                            location={topLocation}
-                            isGoldenHour={isGoldenHour}
-                            label="Best right now"
-                            reasons={topReasons}
-                            timeWindow={heroTimeWindow}
-                            onViewDetails={() => handleViewDetails(topLocation)}
-                          />
-                        )}
-                        {goldenHourLocation && (
-                          <SpotlightCard
-                            location={goldenHourLocation}
-                            isGoldenHour={true}
-                            label="Best for golden hour"
-                            reasons={goldenReasons}
-                            timeWindow={null}
-                          />
-                        )}
+                      <div className="grid sm:grid-cols-2 gap-4 items-start">
+                        {/* Hero card(s) — left column */}
+                        <div className="space-y-3">
+                          {topLocation && (
+                            <SpotlightCard
+                              location={topLocation}
+                              isGoldenHour={isGoldenHour}
+                              label="Best right now"
+                              reasons={topReasons}
+                              timeWindow={heroTimeWindow}
+                              onViewDetails={() => handleViewDetails(topLocation)}
+                            />
+                          )}
+                          {goldenHourLocation && (
+                            <SpotlightCard
+                              location={goldenHourLocation}
+                              isGoldenHour={true}
+                              label="Best for golden hour"
+                              reasons={goldenReasons}
+                              timeWindow={null}
+                            />
+                          )}
+                        </div>
+                        {/* Top 3 — right column */}
+                        <TopThreeSection
+                          topThree={topThree}
+                          lightQuality={lightQuality}
+                          onViewDetails={handleViewDetails}
+                        />
                       </div>
-                      <TopThreeSection
-                        topThree={topThree}
-                        lightQuality={lightQuality}
-                        onViewDetails={handleViewDetails}
-                      />
                       <LocationTabs
                         activeTab={activeTab} onTabChange={handleTabChange}
                         counts={tabCounts} scoredLocations={scoredLocations}
