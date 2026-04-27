@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import {
   scoreCityLocation, scoreNatureLocation, scoreAstroLocation,
-  getLightQuality,
+  getLightQuality, findBestWindow,
 } from '../../utils/scoring';
 import { extractHourlySlice } from '../../hooks/useWeatherData';
 
@@ -9,26 +9,6 @@ function fmt12(hour) {
   if (hour === 0) return '12am';
   if (hour === 12) return '12pm';
   return hour < 12 ? `${hour}am` : `${hour - 12}pm`;
-}
-
-function findBestWindow(scores, eligibleSet, threshold) {
-  const eligible = Array.from(eligibleSet).sort((a, b) => a - b);
-  let best = null;
-  let current = null;
-
-  for (const h of eligible) {
-    if (scores[h] >= threshold) {
-      if (!current) current = { start: h, end: h, maxScore: scores[h] };
-      else { current.end = h; current.maxScore = Math.max(current.maxScore, scores[h]); }
-    } else {
-      if (current) {
-        if (!best || current.maxScore > best.maxScore) best = { ...current };
-        current = null;
-      }
-    }
-  }
-  if (current && (!best || current.maxScore > best.maxScore)) best = current;
-  return best;
 }
 
 const TRACKS = [

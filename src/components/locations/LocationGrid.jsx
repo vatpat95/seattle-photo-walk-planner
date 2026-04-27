@@ -1,6 +1,6 @@
 import LocationCard from './LocationCard';
 
-export default function LocationGrid({ scoredLocations, activeTab, activeSubcategory = 'All', isGoldenHour }) {
+export default function LocationGrid({ scoredLocations, activeTab, activeSubcategory = 'All', isGoldenHour, lightQuality = 'normal' }) {
   const byTab = scoredLocations
     .filter(l => l.category === activeTab)
     .sort((a, b) => b.score - a.score);
@@ -23,7 +23,7 @@ export default function LocationGrid({ scoredLocations, activeTab, activeSubcate
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
         {filtered.map(loc => (
           <LocationCard key={loc.id} location={loc} score={loc.score}
-            conditions={loc.conditions} isGoldenHour={isGoldenHour} />
+            conditions={loc.conditions} isGoldenHour={isGoldenHour} lightQuality={lightQuality} />
         ))}
       </div>
     );
@@ -48,7 +48,7 @@ export default function LocationGrid({ scoredLocations, activeTab, activeSubcate
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3">
             {locs.map(loc => (
               <LocationCard key={loc.id} location={loc} score={loc.score}
-                conditions={loc.conditions} isGoldenHour={isGoldenHour} />
+                conditions={loc.conditions} isGoldenHour={isGoldenHour} lightQuality={lightQuality} />
             ))}
           </div>
         </div>
