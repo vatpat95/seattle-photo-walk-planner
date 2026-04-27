@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import ScoreRing from '../shared/ScoreRing';
-import { scoreColor } from '../../utils/scoring';
+import { scoreColor, getScoreFactors } from '../../utils/scoring';
 import { useWikipediaImage } from '../../hooks/useWikipediaImage';
 import { buildFlickrUrl } from '../../utils/formatters';
 
@@ -17,18 +17,28 @@ const categoryGradients = {
   nature:    'from-emerald-950 to-slate-900',
 };
 
-export default function LocationCard({ location, score, conditions, isGoldenHour }) {
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
+const ratingConfig = {
+  excellent: { label: 'Excellent', cls: 'text-emerald-500 bg-emerald-500/10' },
+  good:      { label: 'Good',      cls: 'text-lime-500 bg-lime-500/10' },
+  fair:      { label: 'Fair',      cls: 'text-amber-500 bg-amber-500/10' },
+  poor:      { label: 'Poor',      cls: 'text-red-400 bg-red-500/10' },
+};
+
+export default function LocationCard({ location, score, conditions, isGoldenHour, lightQuality = 'normal' }) {
+  const [imgError, setImgError]     = useState(false);
+  const [imgLoaded, setImgLoaded]   = useState(false);
+  const [showFactors, setShowFactors] = useState(false);
+
   const imageUrl = useWikipediaImage(location.wikiTitle);
-  const color  = scoreColor(score);
-  const ring   = ringColors[color];
+  const color    = scoreColor(score);
+  const ring     = ringColors[color];
   const showGoldenBanner = isGoldenHour && location.category !== 'city';
   const { cloudCover, precipProb, windMph, visibilityKm } = conditions;
   const gradient = categoryGradients[location.category] ?? 'from-slate-800 to-slate-900';
+  const factors  = showFactors ? getScoreFactors(location, conditions, lightQuality) : null;
 
   return (
-    <div className={`group rounded-2xl bg-bg-card ring-1 ${ring} overflow-hidden card-hover flex flex-col`}>
+    <div id={`loc-${location.id}`} className={`group rounded-2xl bg-bg-card ring-1 ${ring} overflow-hidden card-hover flex flex-col`}>
       {/* Image */}
       <div className="relative h-36 overflow-hidden bg-bg-elevated">
         {showGoldenBanner && (
@@ -36,7 +46,6 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
             ✨ GOLDEN HOUR NOW
           </div>
         )}
-        {/* Skeleton shimmer */}
         {!imgLoaded && !imgError && imageUrl && (
           <div className="absolute inset-0 bg-surface animate-pulse" />
         )}
@@ -53,7 +62,6 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
             <span className="text-text-faint text-xs">{location.subcategory}</span>
           </div>
         )}
-        {/* Gradient overlay for text readability */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to top, var(--bg-card) 0%, color-mix(in srgb, var(--bg-card) 30%, transparent) 50%, transparent 100%)' }}
@@ -81,6 +89,7 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
 
         <p className="text-text-muted text-xs leading-relaxed">{location.notes}</p>
 
+        {/* Stat pills */}
         <div className="flex flex-wrap gap-1.5 mt-auto pt-1">
           <StatPill>☁️ {cloudCover ?? '--'}%</StatPill>
           <StatPill>🌧️ {precipProb ?? '--'}%</StatPill>
@@ -92,6 +101,33 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
           )}
         </div>
 
+        {/* Score breakdown toggle */}
+        <button
+          onClick={() => setShowFactors(f => !f)}
+          className="text-text-faint text-[10px] hover:text-text-muted transition-colors w-fit -mt-1"
+        >
+          {showFactors ? '▴ Hide breakdown' : '▾ Score breakdown'}
+        </button>
+
+        {/* Score factors */}
+        {showFactors && factors && (
+          <div className="border-t border-border-subtle pt-2.5 space-y-2">
+            {factors.map(f => {
+              const { label: rLabel, cls } = ratingConfig[f.rating];
+              return (
+                <div key={f.label} className="flex items-baseline gap-2 text-xs">
+                  <span className="text-text-muted w-[5.5rem] shrink-0 leading-tight">{f.label}</span>
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0 ${cls}`}>
+                    {rLabel}
+                  </span>
+                  <span className="text-text-faint leading-tight">{f.description}</span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Links */}
         <div className="mt-auto pt-2 flex items-center gap-4 flex-wrap">
           <a
             href={`https://www.google.com/maps/dir/?api=1&destination=${location.lat},${location.lng}`}

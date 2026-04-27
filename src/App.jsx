@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useWeatherData, extractHourlySlice, deriveConditions } from './hooks/useWeatherData';
 import { useWebcamRefresh } from './hooks/useWebcamRefresh';
 import { LOCATIONS } from './constants/locations';
-import { scoreCityLocation, scoreNatureLocation, getLightQuality, average } from './utils/scoring';
+import { scoreCityLocation, scoreNatureLocation, getLightQuality, average, findBestWindow, getScoreReasons } from './utils/scoring';
 import { getNowSeattleMs } from './utils/timezone';
 
 import Header from './components/layout/Header';
@@ -120,6 +120,62 @@ export default function App() {
       : null,
     [scoredLocations]);
 
+  const goldenHourLocation = useMemo(() => {
+    if (!seattleData || !currentConditions?.sunset) return null;
+    const sunsetMs = new Date(currentConditions.sunset).getTime();
+    const nowMs = getNowSeattleMs();
+    if (sunsetMs - nowMs < -60 * 60 * 1000) return null;
+    if (sunsetMs - nowMs > 4 * 60 * 60 * 1000) return null;
+    const goldenMs = sunsetMs - 30 * 60 * 1000;
+    const goldenTimeStr = new Date(goldenMs).toISOString().slice(0, 13);
+    const goldenIdx = seattleData.hourly.time?.findIndex(t => t.startsWith(goldenTimeStr));
+    if (goldenIdx == null || goldenIdx < 0) return null;
+    const candidates = LOCATIONS
+      .filter(loc => loc.category === 'viewpoint' || loc.category === 'nature')
+      .map(loc => {
+        const data = RAINIER_IDS.has(loc.id) ? (rainierData ?? seattleData) : seattleData;
+        const slice = extractHourlySlice(data, goldenIdx);
+        return { ...loc, score: scoreNatureLocation(slice, 'golden'), conditions: slice };
+      });
+    const best = candidates.reduce((a, b) => b.score > a.score ? b : a);
+    return best.score >= 50 ? best : null;
+  }, [seattleData, rainierData, currentConditions]);
+
+  const heroTimeWindow = useMemo(() => {
+    if (!seattleData || !topLocation) return null;
+    const baseIdx = todayIndex * 24;
+    const sunriseMs = currentConditions?.sunrise ? new Date(currentConditions.sunrise).getTime() : null;
+    const sunsetMs  = currentConditions?.sunset  ? new Date(currentConditions.sunset).getTime()  : null;
+    const sunriseHr = sunriseMs ? new Date(sunriseMs).getHours() : 6;
+    const sunsetHr  = sunsetMs  ? new Date(sunsetMs).getHours()  : 20;
+    const daySet = new Set(Array.from({ length: 24 }, (_, h) => h).filter(h => h >= sunriseHr && h <= sunsetHr));
+    const scores = Array.from({ length: 24 }, (_, h) => {
+      const slice = extractHourlySlice(seattleData, baseIdx + h);
+      const hourTs = seattleData.hourly.time?.[baseIdx + h];
+      const light = sunriseMs && sunsetMs && hourTs
+        ? getLightQuality(new Date(hourTs).getTime(), sunriseMs, sunsetMs)
+        : 'normal';
+      return topLocation.category === 'city' ? scoreCityLocation(slice) : scoreNatureLocation(slice, light);
+    });
+    const threshold = topLocation.category === 'city' ? 70 : 65;
+    const win = findBestWindow(scores, daySet, threshold);
+    if (!win) return null;
+    const fmt = h => {
+      if (h === 0) return '12 AM';
+      if (h === 12) return '12 PM';
+      return h < 12 ? `${h} AM` : `${h - 12} PM`;
+    };
+    return `${fmt(win.start)} – ${fmt(win.end + 1)}`;
+  }, [seattleData, topLocation, todayIndex, currentConditions]);
+
+  const topReasons = useMemo(() =>
+    topLocation ? getScoreReasons(topLocation, topLocation.conditions, lightQuality) : [],
+    [topLocation, lightQuality]);
+
+  const goldenReasons = useMemo(() =>
+    goldenHourLocation ? getScoreReasons(goldenHourLocation, goldenHourLocation.conditions, 'golden') : [],
+    [goldenHourLocation]);
+
   const SidebarContent = (
     <div className="space-y-5">
       <DayVerdictBanner cityScore={cityAvg} viewpointScore={viewpointAvg} natureScore={natureAvg} />
@@ -161,7 +217,30 @@ export default function App() {
               <div id="mobile-section-dashboard">{SidebarContent}</div>
 
               <div id="mobile-section-locations" className="space-y-4">
-                {topLocation && <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />}
+                <div className="space-y-3">
+                  {topLocation && (
+                    <SpotlightCard
+                      location={topLocation}
+                      isGoldenHour={isGoldenHour}
+                      label="Best right now"
+                      reasons={topReasons}
+                      timeWindow={heroTimeWindow}
+                      onViewDetails={() => {
+                        handleTabChange(topLocation.category === 'viewpoint' ? 'viewpoint' : topLocation.category);
+                        setTimeout(() => document.getElementById(`loc-${topLocation.id}`)?.scrollIntoView({ behavior: 'smooth' }), 100);
+                      }}
+                    />
+                  )}
+                  {goldenHourLocation && (
+                    <SpotlightCard
+                      location={goldenHourLocation}
+                      isGoldenHour={true}
+                      label="Best for golden hour"
+                      reasons={goldenReasons}
+                      timeWindow={null}
+                    />
+                  )}
+                </div>
                 <LocationTabs
                   activeTab={activeTab} onTabChange={handleTabChange}
                   counts={tabCounts} scoredLocations={scoredLocations}
@@ -170,6 +249,7 @@ export default function App() {
                 <LocationGrid
                   scoredLocations={scoredLocations} activeTab={activeTab}
                   activeSubcategory={activeSubcategory} isGoldenHour={isGoldenHour}
+                  lightQuality={lightQuality}
                 />
               </div>
 
@@ -201,9 +281,30 @@ export default function App() {
 
                   {activeView === 'locations' && (
                     <div className="space-y-4">
-                      {topLocation && (
-                        <SpotlightCard location={topLocation} isGoldenHour={isGoldenHour} />
-                      )}
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {topLocation && (
+                          <SpotlightCard
+                            location={topLocation}
+                            isGoldenHour={isGoldenHour}
+                            label="Best right now"
+                            reasons={topReasons}
+                            timeWindow={heroTimeWindow}
+                            onViewDetails={() => {
+                              handleTabChange(topLocation.category === 'viewpoint' ? 'viewpoint' : topLocation.category);
+                              setTimeout(() => document.getElementById(`loc-${topLocation.id}`)?.scrollIntoView({ behavior: 'smooth' }), 100);
+                            }}
+                          />
+                        )}
+                        {goldenHourLocation && (
+                          <SpotlightCard
+                            location={goldenHourLocation}
+                            isGoldenHour={true}
+                            label="Best for golden hour"
+                            reasons={goldenReasons}
+                            timeWindow={null}
+                          />
+                        )}
+                      </div>
                       <LocationTabs
                         activeTab={activeTab} onTabChange={handleTabChange}
                         counts={tabCounts} scoredLocations={scoredLocations}
