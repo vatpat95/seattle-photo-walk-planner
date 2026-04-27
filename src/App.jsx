@@ -14,6 +14,7 @@ import SunTimeline from './components/dashboard/SunTimeline';
 import LocationTabs from './components/locations/LocationTabs';
 import LocationGrid from './components/locations/LocationGrid';
 import SpotlightCard from './components/locations/SpotlightCard';
+import TopThreeSection from './components/locations/TopThreeSection';
 import WebcamSection from './components/webcams/WebcamSection';
 import GuideSection from './components/guide/GuideSection';
 import DayForecast from './components/dashboard/DayForecast';
@@ -176,6 +177,15 @@ export default function App() {
     goldenHourLocation ? getScoreReasons(goldenHourLocation, goldenHourLocation.conditions, 'golden') : [],
     [goldenHourLocation]);
 
+  const topThree = useMemo(() =>
+    [...scoredLocations].sort((a, b) => b.score - a.score).slice(0, 3),
+    [scoredLocations]);
+
+  const handleViewDetails = (loc) => {
+    handleTabChange(loc.category === 'viewpoint' ? 'viewpoint' : loc.category);
+    setTimeout(() => document.getElementById(`loc-${loc.id}`)?.scrollIntoView({ behavior: 'smooth' }), 100);
+  };
+
   const SidebarContent = (
     <div className="space-y-5">
       <DayVerdictBanner cityScore={cityAvg} viewpointScore={viewpointAvg} natureScore={natureAvg} />
@@ -225,10 +235,7 @@ export default function App() {
                       label="Best right now"
                       reasons={topReasons}
                       timeWindow={heroTimeWindow}
-                      onViewDetails={() => {
-                        handleTabChange(topLocation.category === 'viewpoint' ? 'viewpoint' : topLocation.category);
-                        setTimeout(() => document.getElementById(`loc-${topLocation.id}`)?.scrollIntoView({ behavior: 'smooth' }), 100);
-                      }}
+                      onViewDetails={() => handleViewDetails(topLocation)}
                     />
                   )}
                   {goldenHourLocation && (
@@ -241,6 +248,11 @@ export default function App() {
                     />
                   )}
                 </div>
+                <TopThreeSection
+                  topThree={topThree}
+                  lightQuality={lightQuality}
+                  onViewDetails={handleViewDetails}
+                />
                 <LocationTabs
                   activeTab={activeTab} onTabChange={handleTabChange}
                   counts={tabCounts} scoredLocations={scoredLocations}
@@ -289,10 +301,7 @@ export default function App() {
                             label="Best right now"
                             reasons={topReasons}
                             timeWindow={heroTimeWindow}
-                            onViewDetails={() => {
-                              handleTabChange(topLocation.category === 'viewpoint' ? 'viewpoint' : topLocation.category);
-                              setTimeout(() => document.getElementById(`loc-${topLocation.id}`)?.scrollIntoView({ behavior: 'smooth' }), 100);
-                            }}
+                            onViewDetails={() => handleViewDetails(topLocation)}
                           />
                         )}
                         {goldenHourLocation && (
@@ -305,6 +314,11 @@ export default function App() {
                           />
                         )}
                       </div>
+                      <TopThreeSection
+                        topThree={topThree}
+                        lightQuality={lightQuality}
+                        onViewDetails={handleViewDetails}
+                      />
                       <LocationTabs
                         activeTab={activeTab} onTabChange={handleTabChange}
                         counts={tabCounts} scoredLocations={scoredLocations}

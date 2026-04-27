@@ -104,9 +104,12 @@ export default function LocationCard({ location, score, conditions, isGoldenHour
         {/* Score breakdown toggle */}
         <button
           onClick={() => setShowFactors(f => !f)}
-          className="text-text-faint text-[10px] hover:text-text-muted transition-colors w-fit -mt-1"
+          className="flex items-center gap-1 text-[11px] font-medium text-text-secondary
+                     bg-surface border border-border rounded-full px-2.5 py-1 w-fit
+                     hover:bg-surface-hover hover:text-text-primary transition-colors"
         >
-          {showFactors ? '▴ Hide breakdown' : '▾ Score breakdown'}
+          <span className="text-[9px]">{showFactors ? '▴' : '▾'}</span>
+          {showFactors ? 'Hide breakdown' : 'Why this score?'}
         </button>
 
         {/* Score factors */}

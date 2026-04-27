@@ -133,6 +133,31 @@ export function scoreNatureLocation(h, lightQuality = 'normal') {
   return Math.max(0, Math.min(100, Math.round(score)));
 }
 
+const SUBCATEGORY_TAGS = {
+  'City Skyline':        'Skyline',
+  'Hidden Gems':         'Hidden Gem',
+  'Aerial Views':        'Aerial',
+  'Coastal Viewpoints':  'Coastal',
+  'Urban & Street':      'Street',
+  'Architecture':        'Architecture',
+  'Waterfront':          'Waterfront',
+  'City Parks':          'Park',
+  'Alpine & Mountains':  'Alpine',
+  'Waterfalls':          'Waterfall',
+  'Lakes & Rivers':      'Reflections',
+  'Forests & Trails':    'Forest',
+  'City Parks & Forests':'Urban Nature',
+};
+
+export function getLocationTags(loc, lightQuality) {
+  const tags = [];
+  if (lightQuality === 'golden') tags.push('Golden Hour');
+  else if (lightQuality === 'blue') tags.push('Blue Hour');
+  const sub = SUBCATEGORY_TAGS[loc.subcategory];
+  if (sub) tags.push(sub);
+  return tags.slice(0, 2);
+}
+
 export function getScoreFactors(loc, conditions, lightQuality) {
   const { cloudCover = 50, precipMM = 0, precipProb = 0, visibilityKm = 15, windMph = 10 } = conditions ?? {};
   const isCity = loc.category === 'city';
