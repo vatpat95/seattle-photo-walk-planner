@@ -63,21 +63,51 @@ export default function GuideSection() {
       <Section icon="🚀" title="Quick start">
         <ol className="list-decimal list-outside pl-5 space-y-2">
           <li>
-            <span className="text-text-primary">Read the day verdict.</span> Three cards at the top show
-            scores for City, Viewpoints, and Nature. Pick whichever category has the strongest score
-            for the current hour.
+            <span className="text-text-primary">Check the hero recommendation.</span> The large card at the
+            top tells you the best place to shoot right now — with a score, three reasons why, and the
+            optimal time window. A second card appears automatically when golden hour is within 4 hours.
           </li>
           <li>
-            <span className="text-text-primary">Open the matching tab.</span> The "Locations" view filters
-            spots by category and ranks them by how good they look right now.
+            <span className="text-text-primary">Scan Top 3 Today</span> beside the hero for a quick
+            leaderboard of the three highest-scoring locations. Hit <span className="text-text-primary font-semibold">View →</span> on
+            any row to jump straight to that card in the grid below.
           </li>
           <li>
-            <span className="text-text-primary">Tap a location card</span> for shooting notes, distance from
-            downtown, and a Wikipedia preview. Hit <span className="text-violet-500 font-semibold">🎨 Inspire Me</span> to
-            open Flickr in a new tab and browse real photos taken at that spot. Use the Live Webcams tab
-            if you want eyes on conditions before you commit.
+            <span className="text-text-primary">Browse by category.</span> The Locations tabs filter spots
+            by City, Viewpoints, and Nature and rank them by current score.
+          </li>
+          <li>
+            <span className="text-text-primary">Tap "Why this score?"</span> on any card to see a plain-English
+            breakdown — Light quality, Visibility, Rain risk, and Wind — so you know exactly what's driving
+            the number. Hit <span className="text-violet-500 font-semibold">🎨 Inspire Me</span> to browse
+            real photos from that spot on Flickr.
           </li>
         </ol>
+      </Section>
+
+      <Section icon="🏆" title="Hero recommendation & Top 3 Today">
+        <p>
+          The hero section at the top of the Locations view does the decision-making for you.
+        </p>
+        <ul className="space-y-2 list-disc list-outside pl-5">
+          <li>
+            <span className="text-text-primary font-semibold">Best right now</span> — the single
+            highest-scoring location across all 45 spots, scored against the current hour's weather.
+            Shows three plain-English reasons, the best shooting window for the day, and direct links
+            to get directions or jump to the full location card.
+          </li>
+          <li>
+            <span className="text-text-primary font-semibold">Best for golden hour</span> — appears
+            automatically when sunset is 1–4 hours away. Scores viewpoint and nature locations against
+            the weather forecast at the golden-hour time slot, not the current hour, so you can plan
+            ahead rather than react.
+          </li>
+          <li>
+            <span className="text-text-primary font-semibold">Top 3 Today</span> — a compact leaderboard
+            beside the hero card ranking the three highest-scoring locations right now. Uses the same
+            scoring as the hero — consistent ranking guaranteed.
+          </li>
+        </ul>
       </Section>
 
       <Section icon="🎯" title="Reading the day verdict">
@@ -244,6 +274,12 @@ export default function GuideSection() {
           <FaqItem q="Where does the weather data come from?">
             Open-Meteo's free, no-key forecast API. We pull two locations in parallel — downtown
             Seattle and Mt Rainier — so Rainier-area locations get more accurate mountain weather.
+          </FaqItem>
+          <FaqItem q="What does 'Why this score?' show me?">
+            Tapping that button on any location card reveals four factors: Light quality, Visibility,
+            Rain risk, and Wind. Each is rated Excellent, Good, Fair, or Poor with a short description
+            in plain English — no meteorology required. City and nature locations use different light
+            logic: overcast is good for street photography but bad for mountain views.
           </FaqItem>
           <FaqItem q="Does this work for cities outside Seattle?">
             Not yet — every location and the weather coordinates are hard-coded for the Seattle

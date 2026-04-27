@@ -25,8 +25,11 @@ main.jsx
               ├── ConditionsSummary       temp, cloud, wind, rain, visibility chips
               ├── SunTimeline             sunrise → now → sunset bar
               ├── DayForecast             72-hour hourly scroller
-              ├── SpotlightCard           hero card for the day's top-scoring location
+              ├── SpotlightCard           hero card(s) — "Best right now" + optional "Best for golden hour"
+              │     └── shows score reasons, best time window, View details CTA
+              ├── TopThreeSection         compact ranked list of top 3 locations by current score
               ├── LocationTabs + LocationGrid   browseable, filterable, scored cards
+              │     └── LocationCard expands "Why this score?" into 4-factor breakdown
               └── WebcamSection           6 live image feeds, 5-min refresh
 ```
 
@@ -35,8 +38,10 @@ main.jsx
 1. `useWeatherData` returns `{ seattleData, rainierData, currentHourIndex, todayIndex, loading, error, fetchedAt, isStale, reload }`.
 2. `App.jsx` extracts the current hour's slice for each location via `extractHourlySlice()`.
 3. `scoreCityLocation(slice)` or `scoreNatureLocation(slice, lightQuality)` returns 0–100.
-4. Locations flow into `LocationGrid` filtered by the active tab/subcategory.
-5. Category averages flow into `DayVerdictBanner`.
+4. `topLocation` (highest score), `topThree` (top 3 sorted), `goldenHourLocation` (best viewpoint/nature scored at golden-hour time index), `heroTimeWindow` (best window string), `topReasons` / `goldenReasons` (from `getScoreReasons`) are all derived via `useMemo`.
+5. `SpotlightCard` renders the hero recommendation; `TopThreeSection` renders the leaderboard beside it.
+6. Locations flow into `LocationGrid` filtered by the active tab/subcategory. Each `LocationCard` computes its score factors lazily via `getScoreFactors` only when the "Why this score?" breakdown is opened.
+7. Category averages flow into `DayVerdictBanner`.
 
 ---
 
@@ -59,7 +64,13 @@ main.jsx
 
 ### Utils (`src/utils/`) — pure functions, no React
 
-- **`scoring.js`** — `scoreCityLocation`, `scoreNatureLocation`, `scoreAstroLocation`, `getLightQuality`, `scoreColor`, `scoreLabel`, `average`. **All scoring rules live here. Do not inline scoring logic in components.**
+- **`scoring.js`** — All scoring logic lives here. **Do not inline scoring in components.**
+  - `scoreCityLocation`, `scoreNatureLocation`, `scoreAstroLocation` — 0–100 scores from an hourly slice
+  - `getLightQuality`, `scoreColor`, `scoreLabel`, `average` — utilities
+  - `findBestWindow(scores, eligibleSet, threshold)` — finds the best continuous window above a threshold; used by `DayForecast` and `App.jsx` to compute `heroTimeWindow`
+  - `getScoreReasons(loc, conditions, lightQuality)` → `string[]` — top 3 human-readable reason phrases for the hero card's reason pills
+  - `getScoreFactors(loc, conditions, lightQuality)` → `{ label, rating, description }[]` — 4-factor structured breakdown (Light, Visibility, Rain risk, Wind) for the "Why this score?" expand on each `LocationCard`; ratings are `'excellent' | 'good' | 'fair' | 'poor'`
+  - `getLocationTags(loc, lightQuality)` → `string[]` — 1–2 short photographer tags (e.g. `'Alpine'`, `'Golden Hour'`) for `TopThreeSection`
 - **`weatherHelpers.js`** — `describeWmoCode`, `findCurrentHourIndex`, `findTodayIndex`.
 - **`timezone.js`** — Seattle-local time helpers. Use these instead of raw `Date` arithmetic so DST behaves correctly.
 - **`formatters.js`** — Display-layer formatting. Components should use these rather than building strings inline. Includes `buildFlickrUrl(locationName)` which constructs the Flickr search URL used by the "Inspire Me" button on each location card.
@@ -67,7 +78,10 @@ main.jsx
 ### Components (`src/components/`) — organized by domain
 
 - **`dashboard/`** — DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-- **`locations/`** — LocationTabs, LocationGrid, LocationCard, SpotlightCard (hero card for top-scoring location)
+- **`locations/`** — LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection
+  - `SpotlightCard` — hero card; accepts `label`, `reasons`, `timeWindow`, `onViewDetails` props in addition to `location` and `isGoldenHour`
+  - `TopThreeSection` — compact leaderboard; takes `topThree`, `lightQuality`, `onViewDetails`
+  - `LocationCard` — has a "Why this score?" toggle that lazily calls `getScoreFactors`; accepts `lightQuality` prop (threaded from `LocationGrid`)
 - **`webcams/`** — WebcamSection, WebcamFeed
 - **`layout/`** — Header, Footer, ThemeToggle (sun/moon icon button), BottomNav (mobile 4-tab fixed bar)
 - **`shared/`** — ScoreRing, WeatherIcon, LoadingSpinner, ErrorBanner

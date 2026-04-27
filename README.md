@@ -8,6 +8,9 @@ A single-page web app that tells Seattle-area photographers **where to shoot and
 
 ## Features
 
+- **Hero recommendation** — The top-scoring location is featured in a large card with 3 plain-English score reasons, best shooting time window, and a "View details" link that switches to the right category tab and scrolls directly to its card. A second "Best for golden hour" card appears automatically when sunset is 1–4 hours away.
+- **Top 3 Today** — A compact leaderboard beside the hero card ranks the three highest-scoring locations right now: rank badge, score ring, photographer tags (e.g. *Alpine*, *Golden Hour*, *Skyline*), and a one-line reason.
+- **Score explanation** — Every location card has a "Why this score?" pill that expands a 4-factor breakdown: Light quality, Visibility, Rain risk, and Wind — each rated Excellent / Good / Fair / Poor with a plain-English description. City and nature locations get different Light logic (cloud diffusion vs. golden-hour priority).
 - **Real-time scoring** — Every location scored 0–100 from the current hour's cloud cover, visibility, precipitation, wind, and (for nature) ambient light quality.
 - **Three photography verdicts** — Independent averages for *City*, *Viewpoints*, and *Nature* so one poor category doesn't drag the others down.
 - **Golden / blue hour awareness** — Nature scores get a bonus during the ±1 hr / ±30 min windows around sunrise and sunset.
@@ -89,7 +92,7 @@ seattle-photo-walk-planner/
 │   │   └── ThemeContext.jsx        dark/light state, toggle(), useTheme() hook
 │   ├── components/
 │   │   ├── dashboard/              DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard, SpotlightCard
+│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection
 │   │   ├── webcams/                WebcamSection, WebcamFeed
 │   │   ├── layout/                 Header, Footer, ThemeToggle, BottomNav
 │   │   ├── feedback/               FeedbackButton (Web3Forms modal)
@@ -99,7 +102,7 @@ seattle-photo-walk-planner/
 │   │   ├── useWebcamRefresh.js     5-min interval + manual refresh
 │   │   └── useWikipediaImage.js    Wikipedia Commons image lookup
 │   ├── utils/
-│   │   ├── scoring.js              City / nature / astro score functions
+│   │   ├── scoring.js              City / nature / astro score functions; getScoreReasons, getScoreFactors, getLocationTags, findBestWindow
 │   │   ├── weatherHelpers.js       WMO code descriptions, time-array indexing
 │   │   ├── timezone.js             Seattle-local time helpers (America/Los_Angeles)
 │   │   └── formatters.js           Display-layer formatting (temp, time, visibility)
