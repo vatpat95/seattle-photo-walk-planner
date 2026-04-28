@@ -63,8 +63,14 @@ export default function GuideSection() {
       <Section icon="🚀" title="Quick start">
         <ol className="list-decimal list-outside pl-5 space-y-2">
           <li>
-            <span className="text-text-primary">Check the hero recommendation.</span> The large card at the
-            top tells you the best place to shoot right now — with a score, three reasons why, and the
+            <span className="text-text-primary">Pick your photography style.</span> The style bar at the
+            very top of the page lets you choose from Landscape, Street, Architecture, Portrait, Night,
+            Rainy / Moody, or Beginner-Friendly. The location grid instantly filters to only matching
+            spots and re-ranks them. Your choice is saved — it'll still be set when you come back.
+          </li>
+          <li>
+            <span className="text-text-primary">Check the hero recommendation.</span> The large card
+            below tells you the best place to shoot right now — with a score, three reasons why, and the
             optimal time window. A second card appears automatically when golden hour is within 4 hours.
           </li>
           <li>
@@ -78,11 +84,48 @@ export default function GuideSection() {
           </li>
           <li>
             <span className="text-text-primary">Tap "Why this score?"</span> on any card to see a plain-English
-            breakdown — Light quality, Visibility, Rain risk, and Wind — so you know exactly what's driving
-            the number. Hit <span className="text-violet-500 font-semibold">🎨 Inspire Me</span> to browse
+            breakdown — Light quality, Visibility, Rain risk, Wind, and (when a style is active) Style fit —
+            so you know exactly what's driving the number. Hit <span className="text-violet-500 font-semibold">🎨 Inspire Me</span> to browse
             real photos from that spot on Flickr.
           </li>
         </ol>
+      </Section>
+
+      <Section icon="🎭" title="Photography style personalization">
+        <p>
+          The style bar at the top of the page filters and re-ranks every location to match how you
+          shoot. Select a style and the grid instantly narrows to only the spots tagged for it — no
+          more scrolling past alpine trails when you came to shoot street scenes.
+        </p>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3 space-y-1.5">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">The 7 styles</p>
+          {[
+            ['🏔️ Landscape',         'Open vistas, mountains, reflections, and waterfall hikes.'],
+            ['🏙️ Street',             'Markets, murals, alleys, and candid city life.'],
+            ['🏛️ Architecture',       'Iconic structures, interiors, and skyline views.'],
+            ['🧍 Portrait',            'Parks, waterfronts, and urban spots with clean backdrops.'],
+            ['🌙 Night',              'Skyline overlooks and city viewpoints after dark.'],
+            ['🌧️ Rainy / Moody',     'Waterfalls, forests, and coastal cliffs that thrive in overcast or rain.'],
+            ['📷 Beginner-Friendly',  'Easy access, clear subjects, and forgiving conditions.'],
+          ].map(([label, desc]) => (
+            <div key={label} className="flex gap-2 py-1 border-b border-border-subtle last:border-b-0">
+              <span className="text-text-primary text-sm font-medium w-44 shrink-0">{label}</span>
+              <span className="text-text-muted text-sm">{desc}</span>
+            </div>
+          ))}
+        </div>
+        <div className="rounded-xl bg-bg-elevated/60 border border-border-subtle p-3">
+          <p className="text-text-muted text-[11px] uppercase tracking-widest mb-2">Score adjustment</p>
+          <Rule rule="Location matches your style"      points="+20" />
+          <Rule rule="Location doesn't match"           points="−10" />
+          <Rule rule="No style selected (default)"      points="±0" />
+        </div>
+        <p className="text-text-muted text-xs">
+          The bonus is applied on top of the live weather score and clamped to 0–100. Hit{' '}
+          <span className="text-text-primary font-semibold">✕ Clear</span> to remove the filter and
+          return to pure weather-based ranking. Your selection is saved in the browser so it persists
+          across visits.
+        </p>
       </Section>
 
       <Section icon="🏆" title="Hero recommendation & Top 3 Today">
@@ -276,10 +319,11 @@ export default function GuideSection() {
             Seattle and Mt Rainier — so Rainier-area locations get more accurate mountain weather.
           </FaqItem>
           <FaqItem q="What does 'Why this score?' show me?">
-            Tapping that button on any location card reveals four factors: Light quality, Visibility,
-            Rain risk, and Wind. Each is rated Excellent, Good, Fair, or Poor with a short description
-            in plain English — no meteorology required. City and nature locations use different light
-            logic: overcast is good for street photography but bad for mountain views.
+            Tapping that button on any location card reveals up to five factors: Light quality,
+            Visibility, Rain risk, Wind, and — when a photography style is active — Style fit. Each
+            is rated Excellent, Good, Fair, or Poor with a short description in plain English. City
+            and nature locations use different light logic: overcast is good for street photography
+            but bad for mountain views.
           </FaqItem>
           <FaqItem q="Does this work for cities outside Seattle?">
             Not yet — every location and the weather coordinates are hard-coded for the Seattle

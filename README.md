@@ -8,10 +8,11 @@ A single-page web app that tells Seattle-area photographers **where to shoot and
 
 ## Features
 
+- **Photography style personalization** — A style selector (Landscape, Street, Architecture, Portrait, Night, Rainy/Moody, Beginner-Friendly) sits at the top of the page. Selecting a style filters the location grid to only matching spots, re-ranks them with a ±20/−10 score bias, updates the category tab counts to reflect the filtered set, and surfaces a "Style fit" factor in every score breakdown. A gold "★ Style match" badge marks matching cards. Selection persists in `localStorage`; "✕ Clear" resets to pure weather ranking.
 - **Hero recommendation** — The top-scoring location is featured in a large card with 3 plain-English score reasons, best shooting time window, and a "View details" link that switches to the right category tab and scrolls directly to its card. A second "Best for golden hour" card appears automatically when sunset is 1–4 hours away.
 - **Top 3 Today** — A compact leaderboard beside the hero card ranks the three highest-scoring locations right now: rank badge, score ring, photographer tags (e.g. *Alpine*, *Golden Hour*, *Skyline*), and a one-line reason.
-- **Score explanation** — Every location card has a "Why this score?" pill that expands a 4-factor breakdown: Light quality, Visibility, Rain risk, and Wind — each rated Excellent / Good / Fair / Poor with a plain-English description. City and nature locations get different Light logic (cloud diffusion vs. golden-hour priority).
-- **Real-time scoring** — Every location scored 0–100 from the current hour's cloud cover, visibility, precipitation, wind, and (for nature) ambient light quality.
+- **Score explanation** — Every location card has a "Why this score?" pill that expands a 5-factor breakdown: Light quality, Visibility, Rain risk, Wind, and (when a style is active) Style fit — each rated Excellent / Good / Fair / Poor with a plain-English description.
+- **Real-time scoring** — Every location scored 0–100 from the current hour's cloud cover, visibility, precipitation, wind, and (for nature) ambient light quality, with an optional style-fit bonus applied on top.
 - **Three photography verdicts** — Independent averages for *City*, *Viewpoints*, and *Nature* so one poor category doesn't drag the others down.
 - **Golden / blue hour awareness** — Nature scores get a bonus during the ±1 hr / ±30 min windows around sunrise and sunset.
 - **Inspire Me** — Each location card has an "🎨 Inspire Me" link that opens a Flickr search for that spot in a new tab, letting you browse real photos from the photographer community before you head out.
@@ -92,7 +93,7 @@ seattle-photo-walk-planner/
 │   │   └── ThemeContext.jsx        dark/light state, toggle(), useTheme() hook
 │   ├── components/
 │   │   ├── dashboard/              DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection
+│   │   ├── locations/              LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection, StyleSelector
 │   │   ├── webcams/                WebcamSection, WebcamFeed
 │   │   ├── layout/                 Header, Footer, ThemeToggle, BottomNav
 │   │   ├── feedback/               FeedbackButton (Web3Forms modal)
@@ -107,7 +108,7 @@ seattle-photo-walk-planner/
 │   │   ├── timezone.js             Seattle-local time helpers (America/Los_Angeles)
 │   │   └── formatters.js           Display-layer formatting (temp, time, visibility)
 │   └── constants/
-│       └── locations.js            45 curated locations + 6 webcam feeds
+│       └── locations.js            39 curated locations (each with styleTags) + 6 webcam feeds
 ├── vercel.json                     SPA rewrite rule
 ├── vite.config.js                  React + Tailwind v4 plugins
 └── eslint.config.js                flat-config ESLint setup
@@ -117,7 +118,15 @@ seattle-photo-walk-planner/
 
 ## How the Scoring Works
 
-Every location runs through one of two functions in `src/utils/scoring.js`, returning an integer 0–100.
+Every location runs through one of two weather-scoring functions in `src/utils/scoring.js`, returning an integer 0–100. When a photography style is active, `getStyleFitBonus` adds a ±10–20 adjustment on top.
+
+### Photography style bonus — `getStyleFitBonus(location, selectedStyle)`
+
+Applied after the weather score. Each location carries a `styleTags` array (e.g. `['landscape', 'night']`).
+
+- Location tag matches selected style → **+20**
+- Style selected but no tag match → **−10**
+- No style selected → **0** (baseline, pure weather score)
 
 ### City locations — `scoreCityLocation(conditions)`
 Favors **overcast, dry, visible** conditions (soft diffused light).
@@ -150,7 +159,7 @@ The dashboard's *Day Verdict* banner shows three scores — the average of every
 
 ## Caching Strategy
 
-Weather data is fetched from Open-Meteo and cached in `localStorage` under key **`spwp_weather_v1`** with a 5-minute TTL.
+Weather data is fetched from Open-Meteo and cached in `localStorage` under key **`spwp_weather_v1`** with a 5-minute TTL. The user's selected photography style is persisted under **`spwp_style`** (no expiry — a plain `removeItem` on reset).
 
 | Scenario                         | Result                                          |
 | -------------------------------- | ----------------------------------------------- |

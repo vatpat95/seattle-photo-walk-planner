@@ -25,11 +25,12 @@ main.jsx
               ├── ConditionsSummary       temp, cloud, wind, rain, visibility chips
               ├── SunTimeline             sunrise → now → sunset bar
               ├── DayForecast             72-hour hourly scroller
+              ├── StyleSelector           photography style pill bar (top of page, persists to localStorage)
               ├── SpotlightCard           hero card(s) — "Best right now" + optional "Best for golden hour"
               │     └── shows score reasons, best time window, View details CTA
               ├── TopThreeSection         compact ranked list of top 3 locations by current score
               ├── LocationTabs + LocationGrid   browseable, filterable, scored cards
-              │     └── LocationCard expands "Why this score?" into 4-factor breakdown
+              │     └── LocationCard expands "Why this score?" into 5-factor breakdown (incl. Style fit)
               └── WebcamSection           6 live image feeds, 5-min refresh
 ```
 
@@ -37,11 +38,12 @@ main.jsx
 
 1. `useWeatherData` returns `{ seattleData, rainierData, currentHourIndex, todayIndex, loading, error, fetchedAt, isStale, reload }`.
 2. `App.jsx` extracts the current hour's slice for each location via `extractHourlySlice()`.
-3. `scoreCityLocation(slice)` or `scoreNatureLocation(slice, lightQuality)` returns 0–100.
-4. `topLocation` (highest score), `topThree` (top 3 sorted), `goldenHourLocation` (best viewpoint/nature scored at golden-hour time index), `heroTimeWindow` (best window string), `topReasons` / `goldenReasons` (from `getScoreReasons`) are all derived via `useMemo`.
-5. `SpotlightCard` renders the hero recommendation; `TopThreeSection` renders the leaderboard beside it.
-6. Locations flow into `LocationGrid` filtered by the active tab/subcategory. Each `LocationCard` computes its score factors lazily via `getScoreFactors` only when the "Why this score?" breakdown is opened.
-7. Category averages flow into `DayVerdictBanner`.
+3. `scoreCityLocation(slice)` or `scoreNatureLocation(slice, lightQuality)` returns the weather score (0–100). `getStyleFitBonus(loc, selectedStyle)` adds ±10–20 on top; the combined score is clamped to 0–100. Both `score` (combined) and `weatherScore` (raw) are stored on the location object.
+4. `styleFilteredLocations` — when a style is active, filters `scoredLocations` to only locations whose `styleTags` include the selected style. This is what both `LocationTabs` (for subcategory chip generation) and `LocationGrid` (for the card grid) receive, so tab counts and visible subcategories always reflect the filtered set.
+5. `topLocation` (highest score), `topThree` (top 3 sorted), `goldenHourLocation` (best viewpoint/nature scored at golden-hour time index), `heroTimeWindow` (best window string), `topReasons` / `goldenReasons` (from `getScoreReasons(..., selectedStyle)`) are all derived via `useMemo`.
+6. `SpotlightCard` renders the hero recommendation; `TopThreeSection` renders the leaderboard beside it.
+7. `styleFilteredLocations` flow into `LocationGrid` filtered further by the active tab/subcategory. Each `LocationCard` computes its score factors lazily via `getScoreFactors(..., selectedStyle)` only when the "Why this score?" breakdown is opened.
+8. Category averages (from the full `scoredLocations`, not the filtered list) flow into `DayVerdictBanner`.
 
 ---
 
@@ -50,7 +52,7 @@ main.jsx
 ### Entry points
 
 - **`src/main.jsx`** — Mounts `<App />` in `StrictMode`, wrapped in `<ThemeProvider>` and Vercel `<Analytics />`. Do not add business logic here.
-- **`src/App.jsx`** — Orchestration only: owns `activeView`, `activeTab`, `activeSubcategory`. Adaptive layout: mobile BottomNav tabs, tablet stacked sections, desktop sticky sidebar. Delegates all data fetching to hooks and all UI to components.
+- **`src/App.jsx`** — Orchestration only: owns `activeView`, `activeTab`, `activeSubcategory`, and `selectedStyle` (persisted to `localStorage` under `spwp_style`). Adaptive layout: mobile BottomNav tabs, tablet stacked sections, desktop sticky sidebar. Delegates all data fetching to hooks and all UI to components.
 
 ### Theme (`src/contexts/`)
 
@@ -65,11 +67,12 @@ main.jsx
 ### Utils (`src/utils/`) — pure functions, no React
 
 - **`scoring.js`** — All scoring logic lives here. **Do not inline scoring in components.**
-  - `scoreCityLocation`, `scoreNatureLocation`, `scoreAstroLocation` — 0–100 scores from an hourly slice
+  - `scoreCityLocation`, `scoreNatureLocation`, `scoreAstroLocation` — 0–100 weather scores from an hourly slice
+  - `getStyleFitBonus(location, selectedStyle)` → `number` — returns +20 if `location.styleTags` includes `selectedStyle`, −10 if not, 0 if no style selected. Applied in `App.jsx` after the weather score.
   - `getLightQuality`, `scoreColor`, `scoreLabel`, `average` — utilities
   - `findBestWindow(scores, eligibleSet, threshold)` — finds the best continuous window above a threshold; used by `DayForecast` and `App.jsx` to compute `heroTimeWindow`
-  - `getScoreReasons(loc, conditions, lightQuality)` → `string[]` — top 3 human-readable reason phrases for the hero card's reason pills
-  - `getScoreFactors(loc, conditions, lightQuality)` → `{ label, rating, description }[]` — 4-factor structured breakdown (Light, Visibility, Rain risk, Wind) for the "Why this score?" expand on each `LocationCard`; ratings are `'excellent' | 'good' | 'fair' | 'poor'`
+  - `getScoreReasons(loc, conditions, lightQuality, selectedStyle?)` → `string[]` — top 3 human-readable reason phrases; injects a style-fit reason when `selectedStyle` is set
+  - `getScoreFactors(loc, conditions, lightQuality, selectedStyle?)` → `{ label, rating, description }[]` — 4-factor breakdown (Light, Visibility, Rain risk, Wind) + optional 5th Style fit factor; ratings are `'excellent' | 'good' | 'fair' | 'poor'`
   - `getLocationTags(loc, lightQuality)` → `string[]` — 1–2 short photographer tags (e.g. `'Alpine'`, `'Golden Hour'`) for `TopThreeSection`
 - **`weatherHelpers.js`** — `describeWmoCode`, `findCurrentHourIndex`, `findTodayIndex`.
 - **`timezone.js`** — Seattle-local time helpers. Use these instead of raw `Date` arithmetic so DST behaves correctly.
@@ -78,10 +81,11 @@ main.jsx
 ### Components (`src/components/`) — organized by domain
 
 - **`dashboard/`** — DayVerdictBanner, ConditionsSummary, DayForecast, SunTimeline
-- **`locations/`** — LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection
+- **`locations/`** — StyleSelector, LocationTabs, LocationGrid, LocationCard, SpotlightCard, TopThreeSection
+  - `StyleSelector` — pill card rendered immediately after `<Header>` in `App.jsx`, before the loading/error states and the main layout grid; accepts `selectedStyle` and `onStyleChange`; active style uses gold accent (`bg-gold-dim text-gold`); "✕ Clear" resets to null and calls `localStorage.removeItem('spwp_style')`
   - `SpotlightCard` — hero card; accepts `label`, `reasons`, `timeWindow`, `onViewDetails` props in addition to `location` and `isGoldenHour`
-  - `TopThreeSection` — compact leaderboard; takes `topThree`, `lightQuality`, `onViewDetails`
-  - `LocationCard` — has a "Why this score?" toggle that lazily calls `getScoreFactors`; accepts `lightQuality` prop (threaded from `LocationGrid`)
+  - `TopThreeSection` — compact leaderboard; takes `topThree`, `lightQuality`, `onViewDetails`, `selectedStyle`
+  - `LocationCard` — has a "Why this score?" toggle that lazily calls `getScoreFactors`; accepts `lightQuality` and `selectedStyle` props (threaded from `LocationGrid`); shows a gold "★ Style match" badge when the location's tags match the active style
 - **`webcams/`** — WebcamSection, WebcamFeed
 - **`layout/`** — Header, Footer, ThemeToggle (sun/moon icon button), BottomNav (mobile 4-tab fixed bar)
 - **`shared/`** — ScoreRing, WeatherIcon, LoadingSpinner, ErrorBanner
@@ -89,7 +93,7 @@ main.jsx
 
 ### Constants (`src/constants/`)
 
-- **`locations.js`** — The single source of truth for what the app ranks. Two exports: `LOCATIONS` (array of ~45 curated spots) and `WEBCAMS` (6 live feeds). See **Adding a new location** below for the required shape.
+- **`locations.js`** — The single source of truth for what the app ranks. Two exports: `LOCATIONS` (array of 39 curated spots, each with a `styleTags` array) and `WEBCAMS` (6 live feeds). See **Adding a new location** below for the required shape.
 
 ---
 
@@ -164,10 +168,13 @@ Append an entry to `LOCATIONS` in `src/constants/locations.js`:
   lat: 47.6295,
   lng: -122.3596,
   distanceMiles: 3,              // from downtown Seattle
+  styleTags: ['landscape', 'architecture', 'night'],  // from the 7 valid style ids
   notes: 'Best at blue hour for skyline + Mt Rainier.',
   wikiTitle: 'Kerry_Park_(Seattle)',  // for Wikipedia image lookup — optional
 }
 ```
+
+**Valid style tag values:** `'landscape'`, `'street'`, `'architecture'`, `'portrait'`, `'night'`, `'rainy-moody'`, `'beginner-friendly'`. Use the subcategory → tag mapping in `CLAUDE.md` as a guide, and assign tags that genuinely reflect what the spot is good for. A location can have multiple tags.
 
 **Rainier-adjacent locations** (IDs `rainier-paradise`, `rainier-reflection`, `rainier-tipsoo`) are scored against Rainier-specific weather instead of Seattle's. If you add another Rainier location, also add its id to `RAINIER_IDS` in `App.jsx`.
 
